@@ -10,13 +10,13 @@ const db = createClient(SUPABASE_URL, SERVICE_KEY, {
 
 const admins = [
   {
-    email: 'super@altoDrugstore.com',
+    email: 'dtmapp1005@gmail.com',
     password: 'SuperAdmin2026!',
     role: 'super',
     name: 'Super Admin'
   },
   {
-    email: 'local@altoDrugstore.com',
+    email: 'dtmapp1006@gmail.com',
     password: 'LocalAdmin2026!',
     role: 'local',
     name: 'Admin Local'
