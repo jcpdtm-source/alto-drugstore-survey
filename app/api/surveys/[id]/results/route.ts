@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
-// GET: resultados públicos de una encuesta, respetando el orden configurado
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const db = supabaseAdmin()
 
-  // Obtener configuración de orden de la encuesta
-  const { data: survey } = await db
-    .from('surveys')
-    .select('result_order')
-    .eq('id', id)
-    .single()
-
-  const orderByRank = !survey || survey.result_order === 'rank'
+  // Obtener result_order via función SQL (bypasea schema cache)
+  let orderByRank = true
+  const { data: orderData } = await db.rpc('get_survey_result_order', { p_id: id })
+  if (orderData) orderByRank = orderData === 'rank'
 
   const { data, error } = await db
     .from('survey_results')

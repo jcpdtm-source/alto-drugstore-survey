@@ -32,11 +32,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   const db = supabaseAdmin()
 
-  // Actualizar encuesta
-  const { error: surveyError } = await db
-    .from('surveys')
-    .update({ title, question, result_order: result_order || 'rank' })
-    .eq('id', id)
+  // Usar función SQL para evitar el schema cache de PostgREST
+  const { error: surveyError } = await db.rpc('update_survey', {
+    p_id: id,
+    p_title: title,
+    p_question: question,
+    p_result_order: result_order || 'rank',
+  })
 
   if (surveyError) return NextResponse.json({ error: surveyError.message }, { status: 500 })
 

@@ -10,7 +10,7 @@ export async function GET() {
   const db = supabaseAdmin()
   const { data, error } = await db
     .from('surveys')
-    .select('*, survey_options(*))')
+    .select('*, survey_options(*)')
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -33,20 +33,42 @@ export async function POST(req: NextRequest) {
   }
 
   const db = supabaseAdmin()
-  const { data: survey, error: surveyError } = await db
-    .from('surveys')
-    .insert({ title, question, created_by: session.adminId, is_active: false, result_order: result_order || 'rank' })
-    .select()
-    .single()
+  const order = result_order || 'rank'
 
-  if (surveyError) return NextResponse.json({ error: surveyError.message }, { status: 500 })
+  // Usar SQL directo para evitar problemas con el schema cache de PostgREST
+  const { data: surveyRows, error: surveyError } = await db.rpc('create_survey', {
+    p_title: title,
+    p_question: question,
+    p_created_by: session.adminId,
+    p_result_order: order,
+  })
 
+  if (surveyError) {
+    // Fallback: insertar sin result_order si la función no existe aún
+    const { data: survey, error: insertError } = await db
+      .from('surveys')
+      .insert({ title, question, created_by: session.adminId, is_active: false })
+      .select()
+      .single()
+
+    if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
+
+    // Actualizar result_order con SQL raw
+    await db.rpc('set_survey_result_order', { p_id: survey.id, p_order: order }).maybeSingle()
+
+    const optionRows = options.map((text: string, i: number) => ({
+      survey_id: survey.id, text, display_order: i,
+    }))
+    const { error: optError } = await db.from('survey_options').insert(optionRows)
+    if (optError) return NextResponse.json({ error: optError.message }, { status: 500 })
+
+    return NextResponse.json(survey, { status: 201 })
+  }
+
+  const survey = Array.isArray(surveyRows) ? surveyRows[0] : surveyRows
   const optionRows = options.map((text: string, i: number) => ({
-    survey_id: survey.id,
-    text,
-    display_order: i,
+    survey_id: survey.id, text, display_order: i,
   }))
-
   const { error: optError } = await db.from('survey_options').insert(optionRows)
   if (optError) return NextResponse.json({ error: optError.message }, { status: 500 })
 
