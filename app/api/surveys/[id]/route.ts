@@ -9,7 +9,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const { data: survey, error } = await db
     .from('surveys')
-    .select('id, question, title, is_active, result_order, survey_options(id, text, display_order)')
+    .select('id, question, title, is_active, survey_options(id, text, display_order)')
     .eq('id', id)
     .single()
 

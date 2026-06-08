@@ -10,7 +10,7 @@ export async function GET() {
   const db = supabaseAdmin()
   const { data, error } = await db
     .from('surveys')
-    .select('*, survey_options(*)')
+    .select('id, title, question, is_active, closed_at, created_at, created_by, survey_options(*)')
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

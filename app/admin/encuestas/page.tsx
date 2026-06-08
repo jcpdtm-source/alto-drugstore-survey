@@ -11,7 +11,7 @@ export default async function EncuestasPage() {
   const db = supabaseAdmin()
   const { data: surveys } = await db
     .from('surveys')
-    .select('*, survey_options(*)')
+    .select('id, title, question, is_active, closed_at, created_at, survey_options(*)')
     .order('created_at', { ascending: false })
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
