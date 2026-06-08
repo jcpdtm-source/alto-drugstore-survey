@@ -13,6 +13,7 @@ export interface Survey {
   title: string
   question: string
   is_active: boolean
+  result_order: 'rank' | 'original'
   created_by: string
   created_at: string
   closed_at: string | null

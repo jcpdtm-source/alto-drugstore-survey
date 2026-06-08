@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
   }
 
-  const { title, question, options } = await req.json()
+  const { title, question, options, result_order } = await req.json()
   if (!title || !question || !options || options.length < 2) {
     return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
   }
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
   const db = supabaseAdmin()
   const { data: survey, error: surveyError } = await db
     .from('surveys')
-    .insert({ title, question, created_by: session.adminId, is_active: false })
+    .insert({ title, question, created_by: session.adminId, is_active: false, result_order: result_order || 'rank' })
     .select()
     .single()
 

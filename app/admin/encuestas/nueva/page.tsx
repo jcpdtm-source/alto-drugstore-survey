@@ -9,6 +9,7 @@ export default function NuevaEncuestaPage() {
   const [title, setTitle] = useState('')
   const [question, setQuestion] = useState('')
   const [options, setOptions] = useState(['', ''])
+  const [resultOrder, setResultOrder] = useState<'rank' | 'original'>('rank')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -31,14 +32,18 @@ export default function NuevaEncuestaPage() {
       setError('Necesitás al menos 2 opciones.')
       return
     }
-
     setLoading(true)
     setError('')
 
     const res = await fetch('/api/surveys', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: title.trim(), question: question.trim(), options: filledOptions }),
+      body: JSON.stringify({
+        title: title.trim(),
+        question: question.trim(),
+        options: filledOptions,
+        result_order: resultOrder,
+      }),
     })
 
     if (res.ok) {
@@ -111,6 +116,50 @@ export default function NuevaEncuestaPage() {
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Orden de resultados */}
+          <div>
+            <label className="text-gray-300 text-sm font-medium block mb-3">
+              Orden de los resultados en pantalla
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setResultOrder('rank')}
+                className={`p-4 rounded-xl border-2 text-left transition-all ${
+                  resultOrder === 'rank'
+                    ? 'border-yellow-500 bg-yellow-500/10'
+                    : 'border-gray-700 bg-gray-800'
+                }`}
+              >
+                <div className="text-lg mb-1">📊</div>
+                <div className={`font-semibold text-sm ${resultOrder === 'rank' ? 'text-yellow-400' : 'text-white'}`}>
+                  Por ranking
+                </div>
+                <div className="text-gray-400 text-xs mt-1">
+                  La opción más votada aparece primera
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setResultOrder('original')}
+                className={`p-4 rounded-xl border-2 text-left transition-all ${
+                  resultOrder === 'original'
+                    ? 'border-yellow-500 bg-yellow-500/10'
+                    : 'border-gray-700 bg-gray-800'
+                }`}
+              >
+                <div className="text-lg mb-1">📋</div>
+                <div className={`font-semibold text-sm ${resultOrder === 'original' ? 'text-yellow-400' : 'text-white'}`}>
+                  Orden original
+                </div>
+                <div className="text-gray-400 text-xs mt-1">
+                  Las opciones aparecen como las escribiste
+                </div>
+              </button>
             </div>
           </div>
 

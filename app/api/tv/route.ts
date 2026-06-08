@@ -34,7 +34,11 @@ export async function PATCH(req: NextRequest) {
   if (typeof body.screen_rotation_enabled === 'boolean') updates.screen_rotation_enabled = body.screen_rotation_enabled
   if (typeof body.rotation_interval_seconds === 'number') updates.rotation_interval_seconds = body.rotation_interval_seconds
 
-  const { data, error } = await db.from('tv_config').update(updates).select().single()
+  // Obtener el id de la única fila de configuración
+  const { data: existing } = await db.from('tv_config').select('id').single()
+  if (!existing) return NextResponse.json({ error: 'Config no encontrada' }, { status: 404 })
+
+  const { data, error } = await db.from('tv_config').update(updates).eq('id', existing.id).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
