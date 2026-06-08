@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useState } from 'react'
 import { Survey } from '@/lib/types'
 
@@ -64,6 +65,12 @@ export default function SurveyActions({ survey }: Props) {
           Cerrar
         </button>
       )}
+      <Link
+        href={`/admin/encuestas/${survey.id}/editar`}
+        className="px-3 py-1.5 bg-blue-700 text-white text-sm rounded-lg hover:bg-blue-600 text-center"
+      >
+        Editar
+      </Link>
       <button
         onClick={handleExport}
         className="px-3 py-1.5 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-500"

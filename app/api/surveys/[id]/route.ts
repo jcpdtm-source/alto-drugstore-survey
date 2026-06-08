@@ -2,19 +2,57 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getSession } from '@/lib/auth'
 
-// GET: datos públicos de una encuesta por id (para página de votación)
+// GET: datos de una encuesta por id
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const db = supabaseAdmin()
 
   const { data: survey, error } = await db
     .from('surveys')
-    .select('id, question, title, is_active, survey_options(id, text, display_order)')
+    .select('id, question, title, is_active, result_order, survey_options(id, text, display_order)')
     .eq('id', id)
     .single()
 
   if (error || !survey) return NextResponse.json({ error: 'Encuesta no encontrada' }, { status: 404 })
   return NextResponse.json(survey)
+}
+
+// PUT: editar encuesta completa (super admin)
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const session = await getSession()
+  if (!session || session.role !== 'super') {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+  }
+
+  const { title, question, options, result_order } = await req.json()
+  if (!title || !question || !options || options.length < 2) {
+    return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 })
+  }
+
+  const db = supabaseAdmin()
+
+  // Actualizar encuesta
+  const { error: surveyError } = await db
+    .from('surveys')
+    .update({ title, question, result_order: result_order || 'rank' })
+    .eq('id', id)
+
+  if (surveyError) return NextResponse.json({ error: surveyError.message }, { status: 500 })
+
+  // Reemplazar opciones: borrar las viejas e insertar las nuevas
+  await db.from('survey_options').delete().eq('survey_id', id)
+
+  const optionRows = options.map((text: string, i: number) => ({
+    survey_id: id,
+    text,
+    display_order: i,
+  }))
+
+  const { error: optError } = await db.from('survey_options').insert(optionRows)
+  if (optError) return NextResponse.json({ error: optError.message }, { status: 500 })
+
+  return NextResponse.json({ ok: true })
 }
 
 // PATCH: activar/desactivar/cerrar encuesta (super admin)
