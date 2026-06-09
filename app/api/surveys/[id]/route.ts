@@ -68,9 +68,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const body = await req.json()
   const db = supabaseAdmin()
 
-  // Si se activa esta, desactivar todas las demás
+  // Si se activa esta, verificar que no haya ya 2 activas
   if (body.is_active === true) {
-    await db.from('surveys').update({ is_active: false }).neq('id', id)
+    const { data: activeNow } = await db
+      .from('surveys')
+      .select('id')
+      .eq('is_active', true)
+      .neq('id', id)
+    if (activeNow && activeNow.length >= 2) {
+      return NextResponse.json(
+        { error: 'Ya hay 2 encuestas activas. Pausá una antes de activar otra.' },
+        { status: 400 }
+      )
+    }
   }
 
   const updates: Record<string, unknown> = {}

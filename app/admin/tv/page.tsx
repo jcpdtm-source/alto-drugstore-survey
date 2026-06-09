@@ -14,6 +14,7 @@ export default function TvAdminPage() {
   const [promoMessage, setPromoMessage] = useState('')
   const [rotationEnabled, setRotationEnabled] = useState(false)
   const [rotationInterval, setRotationInterval] = useState(10)
+  const [orientation, setOrientation] = useState<'horizontal' | 'vertical'>('horizontal')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -27,6 +28,7 @@ export default function TvAdminPage() {
       setData(d)
       setPromoMessage(d.config?.promo_message || '')
       setRotationEnabled(d.config?.screen_rotation_enabled || false)
+      setOrientation(d.config?.orientation || 'horizontal')
       setRotationInterval(d.config?.rotation_interval_seconds || 10)
     }
   }
@@ -42,6 +44,7 @@ export default function TvAdminPage() {
         promo_message: promoMessage,
         screen_rotation_enabled: rotationEnabled,
         rotation_interval_seconds: rotationInterval,
+        orientation,
       }),
     })
     setSaving(false)
@@ -229,6 +232,25 @@ export default function TvAdminPage() {
             )}
           </div>
           {uploadError && <p className="text-red-400 text-sm mt-2">{uploadError}</p>}
+        </section>
+
+        {/* Orientación */}
+        <section className="bg-gray-800 rounded-2xl p-6 mb-6">
+          <h2 className="text-white font-bold text-lg mb-4">📐 Orientación de Pantalla</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { value: 'horizontal', icon: '🖥️', label: 'Horizontal', desc: 'TV apaisado (landscape)' },
+              { value: 'vertical', icon: '📱', label: 'Vertical', desc: 'TV en portrait (girado 90°)' },
+            ].map(opt => (
+              <button key={opt.value} type="button"
+                onClick={() => setOrientation(opt.value as any)}
+                className={`p-4 rounded-xl border-2 text-left transition-all ${orientation === opt.value ? 'border-yellow-500 bg-yellow-500/10' : 'border-gray-700 bg-gray-700'}`}>
+                <div className="text-2xl mb-1">{opt.icon}</div>
+                <div className={`font-semibold text-sm ${orientation === opt.value ? 'text-yellow-400' : 'text-white'}`}>{opt.label}</div>
+                <div className="text-gray-400 text-xs mt-1">{opt.desc}</div>
+              </button>
+            ))}
+          </div>
         </section>
 
         <button

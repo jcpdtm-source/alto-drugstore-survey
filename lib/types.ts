@@ -49,6 +49,7 @@ export interface TvConfig {
   promo_message: string
   screen_rotation_enabled: boolean
   rotation_interval_seconds: number
+  orientation: 'horizontal' | 'vertical'
   updated_at: string
 }
 
@@ -59,6 +60,7 @@ export interface TvScreen {
   is_enabled: boolean
   image_url: string | null
   image_name: string | null
+  survey_id: string | null
 }
 
 export interface AdminSession {
