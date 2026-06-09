@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getSession } from '@/lib/auth'
+import { getDirectDb } from '@/lib/db-direct'
 
 async function getConfig(db: ReturnType<typeof supabaseAdmin>) {
   // Intentar con función SQL que lee orientation correctamente
@@ -51,15 +52,27 @@ export async function PATCH(req: NextRequest) {
   const { data: existing } = await db.from('tv_config').select('id').single()
   if (!existing) return NextResponse.json({ error: 'Config no encontrada' }, { status: 404 })
 
-  const { error } = await db.rpc('exec_update_tv_config', {
-    p_id: existing.id,
-    p_promo_message: typeof body.promo_message === 'string' ? body.promo_message : null,
-    p_rotation_enabled: typeof body.screen_rotation_enabled === 'boolean' ? body.screen_rotation_enabled : null,
-    p_rotation_seconds: typeof body.rotation_interval_seconds === 'number' ? body.rotation_interval_seconds : null,
-    p_orientation: (body.orientation === 'horizontal' || body.orientation === 'vertical') ? body.orientation : null,
-  })
+  // Campos que PostgREST conoce → usar cliente Supabase normal
+  const knownFields: Record<string, unknown> = {}
+  if (typeof body.promo_message === 'string') knownFields.promo_message = body.promo_message
+  if (typeof body.screen_rotation_enabled === 'boolean') knownFields.screen_rotation_enabled = body.screen_rotation_enabled
+  if (typeof body.rotation_interval_seconds === 'number') knownFields.rotation_interval_seconds = body.rotation_interval_seconds
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (Object.keys(knownFields).length > 0) {
+    const { error } = await db.from('tv_config').update(knownFields).eq('id', existing.id)
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  // orientation → SQL directo (PostgREST no la conoce por schema cache)
+  if (body.orientation === 'horizontal' || body.orientation === 'vertical') {
+    try {
+      const sql = getDirectDb()
+      await sql`UPDATE tv_config SET orientation = ${body.orientation} WHERE id = ${existing.id}`
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error al actualizar orientation'
+      return NextResponse.json({ error: msg }, { status: 500 })
+    }
+  }
 
   const config = await getConfig(db)
   return NextResponse.json({ ok: true, config })
