@@ -17,6 +17,7 @@ export default function TvAdminPage() {
   const [orientation, setOrientation] = useState<'horizontal' | 'vertical'>('horizontal')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState('')
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -37,7 +38,8 @@ export default function TvAdminPage() {
 
   const saveConfig = async () => {
     setSaving(true)
-    await fetch('/api/tv', {
+    setSaveError('')
+    const res = await fetch('/api/tv', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -47,9 +49,16 @@ export default function TvAdminPage() {
         orientation,
       }),
     })
+    const result = await res.json()
     setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    if (!res.ok) {
+      setSaveError(result.error || `Error ${res.status}`)
+    } else {
+      // Recargar desde el servidor para confirmar lo guardado
+      await loadData()
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
+    }
   }
 
   const toggleScreen = async (screen: TvScreen) => {
@@ -253,6 +262,11 @@ export default function TvAdminPage() {
           </div>
         </section>
 
+        {saveError && (
+          <div className="mb-3 p-3 bg-red-900/50 border border-red-500 rounded-lg text-red-300 text-sm">
+            ❌ Error al guardar: {saveError}
+          </div>
+        )}
         <button
           onClick={saveConfig}
           disabled={saving}
