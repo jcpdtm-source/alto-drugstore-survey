@@ -133,6 +133,24 @@ export default function TvPage() {
   const currentSlide = slides[slideIndex] || slides[0]
   const orientation = tvData.config?.orientation || 'horizontal'
 
+  // Rotación CSS automática: si el admin eligió vertical pero el navegador
+  // está en horizontal, rotamos toda la página 90° para simular portrait
+  const isScreenHorizontal = typeof window !== 'undefined' && window.innerWidth > window.innerHeight
+  const needsCssRotation = orientation === 'vertical' && isScreenHorizontal
+
+  const rotationStyle = needsCssRotation ? {
+    transform: 'rotate(90deg)',
+    transformOrigin: 'center center',
+    width: '100vh',
+    height: '100vw',
+    position: 'fixed' as const,
+    top: '50%',
+    left: '50%',
+    marginTop: '-50vw',
+    marginLeft: '-50vh',
+    overflow: 'hidden',
+  } : {}
+
   const fsButton = (
     <button onClick={toggleFullscreen} onMouseEnter={() => setShowFsButton(true)}
       style={{
@@ -150,17 +168,19 @@ export default function TvPage() {
   if (!currentSlide) return <div style={{ width: '100vw', height: '100vh', backgroundColor: '#111' }}>{fsButton}</div>
 
   if (currentSlide.type === 'promo_image' && currentSlide.imageUrl) {
-    return <><TvPromoScreen imageUrl={currentSlide.imageUrl} />{fsButton}</>
+    return <><div style={rotationStyle}><TvPromoScreen imageUrl={currentSlide.imageUrl} /></div>{fsButton}</>
   }
 
   return (
     <>
-      <TvSurveyScreen
-        survey={currentSlide.survey || null}
-        results={currentSlide.survey ? (resultsBySurvey[currentSlide.survey.id] || []) : []}
-        promoMessage={tvData.config.promo_message}
-        orientation={orientation}
-      />
+      <div style={rotationStyle}>
+        <TvSurveyScreen
+          survey={currentSlide.survey || null}
+          results={currentSlide.survey ? (resultsBySurvey[currentSlide.survey.id] || []) : []}
+          promoMessage={tvData.config.promo_message}
+          orientation={orientation}
+        />
+      </div>
       {fsButton}
     </>
   )
