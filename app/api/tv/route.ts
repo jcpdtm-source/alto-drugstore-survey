@@ -2,11 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getSession } from '@/lib/auth'
 
+async function getConfig(db: ReturnType<typeof supabaseAdmin>) {
+  // Intentar con función SQL que lee orientation correctamente
+  const { data: rpcData, error: rpcError } = await db.rpc('get_tv_config')
+  if (!rpcError && rpcData) return rpcData
+
+  // Fallback: select directo (sin orientation si el schema cache no la tiene)
+  const { data } = await db.from('tv_config').select('*').single()
+  return { ...data, orientation: data?.orientation || 'horizontal' }
+}
+
 export async function GET() {
   const db = supabaseAdmin()
 
-  const [configRes, screensRes, activeSurveysRes] = await Promise.all([
-    db.rpc('get_tv_config'),
+  const [config, screensRes, activeSurveysRes] = await Promise.all([
+    getConfig(db),
     db.from('tv_screens').select('*').order('display_order'),
     db.from('surveys')
       .select('id, question, title')
@@ -15,8 +25,16 @@ export async function GET() {
       .limit(2),
   ])
 
+  // Garantizar que config nunca sea null
+  const safeConfig = config || {
+    promo_message: '',
+    screen_rotation_enabled: false,
+    rotation_interval_seconds: 10,
+    orientation: 'horizontal',
+  }
+
   return NextResponse.json({
-    config: configRes.data,
+    config: safeConfig,
     screens: screensRes.data || [],
     activeSurveys: activeSurveysRes.data || [],
     activeSurvey: activeSurveysRes.data?.[0] || null,
@@ -43,7 +61,6 @@ export async function PATCH(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Leer config actualizada via función SQL (bypasea schema cache)
-  const { data: config } = await db.rpc('get_tv_config')
-  return NextResponse.json(config)
+  const config = await getConfig(db)
+  return NextResponse.json({ ok: true, config })
 }
