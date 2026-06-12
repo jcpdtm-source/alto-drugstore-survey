@@ -42,6 +42,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (surveyError) return NextResponse.json({ error: surveyError.message }, { status: 500 })
 
+  // Borrar respuestas primero (FK constraint: responses → options)
+  const { error: respError } = await db
+    .from('survey_responses')
+    .delete()
+    .eq('survey_id', id)
+
+  if (respError) return NextResponse.json({ error: 'Error al borrar respuestas: ' + respError.message }, { status: 500 })
+
   // Borrar opciones viejas
   const { error: deleteError } = await db
     .from('survey_options')
