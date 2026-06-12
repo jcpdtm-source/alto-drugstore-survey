@@ -41,10 +41,10 @@ export default function TvSurveyScreen({ survey, results, promoMessage, orientat
 // large=true para el layout vertical (tipografía duplicada)
 function ResultsBars({ results, large }: { results: SurveyResult[]; large?: boolean }) {
   const maxCount = results.length > 0 ? Math.max(...results.map(r => r.response_count)) : 1
-  const labelSize = large ? 13 : 17
-  const pctSize = large ? 13 : 18
-  const barHeight = large ? 18 : 32
-  const gap = large ? 7 : 14
+  const labelSize = large ? 17 : 17
+  const pctSize = large ? 17 : 18
+  const barHeight = large ? 23 : 32
+  const gap = large ? 9 : 14
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap }}>
@@ -142,7 +142,7 @@ function VerticalLayout({ survey, results, promoMessage, surveyUrl, scanVisible 
 
         {/* QR: tamaño fijo pequeño para que no expulse contenido con 7 opciones */}
         <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0' }}>
-          <QRBlock survey={survey} surveyUrl={surveyUrl} size={300} scanVisible={scanVisible} />
+          <QRBlock survey={survey} surveyUrl={surveyUrl} size={240} scanVisible={scanVisible} />
         </div>
 
         {/* Barras: ocupan el espacio restante */}
