@@ -100,27 +100,44 @@ function PromoBanner({ promoMessage }: { promoMessage: string }) {
 }
 
 function VerticalLayout({ survey, results, promoMessage, surveyUrl, scanVisible }: any) {
+  // El browser del Samsung ve landscape (ej: 1920×1080) aunque el TV esté físicamente vertical.
+  // Rotamos el contenido -90° y swapeamos width/height para compensar.
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#080c13', color: 'white', display: 'flex', flexDirection: 'column', fontFamily: 'Arial, Helvetica, sans-serif', overflow: 'hidden' }}>
+    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: '#080c13', position: 'fixed', top: 0, left: 0 }}>
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        width: '100vh',   // alto del viewport → ancho del contenido rotado
+        height: '100vw',  // ancho del viewport → alto del contenido rotado
+        transform: 'translate(-50%, -50%) rotate(-90deg)',
+        background: '#080c13',
+        color: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: 'Arial, Helvetica, sans-serif',
+        overflow: 'hidden',
+      }}>
 
-      <div style={{ flex: '0 0 20%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 2.5rem 1.5rem', textAlign: 'center' }}>
-        <div style={{ fontSize: 13, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: 12, fontWeight: 600 }}>Alto Drugstore</div>
-        {survey && (
-          <h1 style={{ fontSize: 42, fontWeight: 900, lineHeight: 1.1, color: '#ffffff', margin: 0 }}>
-            {survey.question}
-          </h1>
-        )}
+        <div style={{ flex: '0 0 20%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 2.5rem 1.5rem', textAlign: 'center' }}>
+          <div style={{ fontSize: 13, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: 12, fontWeight: 600 }}>Alto Drugstore</div>
+          {survey && (
+            <h1 style={{ fontSize: 42, fontWeight: 900, lineHeight: 1.1, color: '#ffffff', margin: 0 }}>
+              {survey.question}
+            </h1>
+          )}
+        </div>
+
+        <div style={{ flex: '0 0 32%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <QRBlock survey={survey} surveyUrl={surveyUrl} size={180} scanVisible={scanVisible} />
+        </div>
+
+        <div style={{ flex: 1, padding: '1rem 2.5rem 1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden' }}>
+          <ResultsBars results={results} />
+        </div>
+
+        <PromoBanner promoMessage={promoMessage} />
       </div>
-
-      <div style={{ flex: '0 0 32%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <QRBlock survey={survey} surveyUrl={surveyUrl} size={180} scanVisible={scanVisible} />
-      </div>
-
-      <div style={{ flex: 1, padding: '1rem 2.5rem 1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden' }}>
-        <ResultsBars results={results} />
-      </div>
-
-      <PromoBanner promoMessage={promoMessage} />
     </div>
   )
 }
