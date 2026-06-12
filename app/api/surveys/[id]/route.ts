@@ -42,9 +42,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (surveyError) return NextResponse.json({ error: surveyError.message }, { status: 500 })
 
-  // Reemplazar opciones: borrar las viejas e insertar las nuevas
-  await db.from('survey_options').delete().eq('survey_id', id)
+  // Borrar opciones viejas
+  const { error: deleteError } = await db
+    .from('survey_options')
+    .delete()
+    .eq('survey_id', id)
 
+  if (deleteError) return NextResponse.json({ error: 'Error al borrar opciones: ' + deleteError.message }, { status: 500 })
+
+  // Insertar opciones nuevas
   const optionRows = options.map((text: string, i: number) => ({
     survey_id: id,
     text,
@@ -52,7 +58,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   }))
 
   const { error: optError } = await db.from('survey_options').insert(optionRows)
-  if (optError) return NextResponse.json({ error: optError.message }, { status: 500 })
+  if (optError) return NextResponse.json({ error: 'Error al insertar opciones: ' + optError.message }, { status: 500 })
 
   return NextResponse.json({ ok: true })
 }
