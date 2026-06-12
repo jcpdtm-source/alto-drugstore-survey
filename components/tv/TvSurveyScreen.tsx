@@ -41,10 +41,10 @@ export default function TvSurveyScreen({ survey, results, promoMessage, orientat
 // large=true para el layout vertical (tipografía duplicada)
 function ResultsBars({ results, large }: { results: SurveyResult[]; large?: boolean }) {
   const maxCount = results.length > 0 ? Math.max(...results.map(r => r.response_count)) : 1
-  const labelSize = large ? 34 : 17
-  const pctSize = large ? 36 : 18
-  const barHeight = large ? 52 : 32
-  const gap = large ? 18 : 14
+  const labelSize = large ? 24 : 17
+  const pctSize = large ? 25 : 18
+  const barHeight = large ? 36 : 32
+  const gap = large ? 13 : 14
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap }}>
@@ -99,7 +99,7 @@ function PromoBanner({ promoMessage, large }: { promoMessage: string; large?: bo
   if (!promoMessage) return null
   return (
     <div style={{ flexShrink: 0, background: '#7c2d12', padding: large ? '14px 24px' : '8px 20px', textAlign: 'center' }}>
-      <span style={{ fontSize: large ? 39 : 13, fontWeight: 700, color: '#fed7aa', letterSpacing: '0.05em' }}>
+      <span style={{ fontSize: large ? 20 : 13, fontWeight: 700, color: '#fed7aa', letterSpacing: '0.05em' }}>
         {promoMessage}
       </span>
     </div>
