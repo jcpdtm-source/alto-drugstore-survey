@@ -41,10 +41,10 @@ export default function TvSurveyScreen({ survey, results, promoMessage, orientat
 // large=true para el layout vertical (tipografía duplicada)
 function ResultsBars({ results, large }: { results: SurveyResult[]; large?: boolean }) {
   const maxCount = results.length > 0 ? Math.max(...results.map(r => r.response_count)) : 1
-  const labelSize = large ? 12 : 17
-  const pctSize = large ? 12 : 18
-  const barHeight = large ? 18 : 32
-  const gap = large ? 6 : 14
+  const labelSize = large ? 10 : 17
+  const pctSize = large ? 10 : 18
+  const barHeight = large ? 14 : 32
+  const gap = large ? 5 : 14
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap }}>
@@ -99,7 +99,7 @@ function PromoBanner({ promoMessage, large }: { promoMessage: string; large?: bo
   if (!promoMessage) return null
   return (
     <div style={{ flexShrink: 0, background: '#7c2d12', padding: large ? '14px 24px' : '8px 20px', textAlign: 'center' }}>
-      <span style={{ fontSize: large ? 10 : 13, fontWeight: 700, color: '#fed7aa', letterSpacing: '0.05em' }}>
+      <span style={{ fontSize: large ? 8 : 13, fontWeight: 700, color: '#fed7aa', letterSpacing: '0.05em' }}>
         {promoMessage}
       </span>
     </div>
@@ -142,7 +142,7 @@ function VerticalLayout({ survey, results, promoMessage, surveyUrl, scanVisible 
 
         {/* QR: tamaño fijo pequeño para que no expulse contenido con 7 opciones */}
         <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0' }}>
-          <QRBlock survey={survey} surveyUrl={surveyUrl} size={200} scanVisible={scanVisible} />
+          <QRBlock survey={survey} surveyUrl={surveyUrl} size={300} scanVisible={scanVisible} />
         </div>
 
         {/* Barras: ocupan el espacio restante */}
