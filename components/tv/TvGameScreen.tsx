@@ -16,7 +16,7 @@ const MESSAGES_DEFAULT = [
   'Escaneá y participá ahora',
 ]
 
-export default function TvGameScreen({ gameMessages, orientation = 'horizontal', counter }: Props) {
+export default function TvGameScreen({ gameMessages, orientation = 'horizontal' }: Props) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
   const gameUrl = `${appUrl}/juego`
 
@@ -46,7 +46,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     overflow: 'hidden',
   } : {
     width: '100vw',
@@ -55,16 +55,14 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     overflow: 'hidden',
   }
 
   return (
     <div style={outerStyle}>
       {/* Fondo decorativo */}
-      <div style={{
-        position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none',
-      }}>
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
         <div style={{
           position: 'absolute', width: 600, height: 600,
           background: 'radial-gradient(circle, rgba(246,211,101,0.08) 0%, transparent 70%)',
@@ -77,71 +75,69 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal',
         }} />
       </div>
 
-      {/* Contenido principal */}
-      <div style={{
-        position: 'relative', zIndex: 1, textAlign: 'center',
-        padding: '40px 60px', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', gap: 32, maxWidth: 800,
-      }}>
-        {/* Nombre del negocio */}
-        <div style={{ textAlign: 'center', lineHeight: 1 }}>
-          <div style={{
-            fontSize: 38, fontStyle: 'italic', fontWeight: 900,
-            fontFamily: 'Georgia, serif',
-            background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>
-            Alto
-          </div>
-          <div style={{
-            fontSize: 28, fontWeight: 900, letterSpacing: 6,
-            fontFamily: 'Arial Black, Arial, sans-serif',
-            background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>
-            DRUGSTORE
-          </div>
-        </div>
-
-        {/* Badge */}
+      {/* Nombre del negocio — arriba fijo */}
+      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', paddingTop: 36, lineHeight: 1 }}>
         <div style={{
-          background: 'linear-gradient(135deg, #f6d365, #fda085)',
-          borderRadius: 50, padding: '6px 20px',
-          fontSize: 13, fontWeight: 800, color: '#1a1a2e',
-          letterSpacing: 2, textTransform: 'uppercase',
-          fontFamily: 'Arial, sans-serif',
+          fontSize: 38, fontStyle: 'italic', fontWeight: 900,
+          fontFamily: 'Georgia, serif',
+          background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>
-          🏆 Juego de Premios
+          Alto
         </div>
-
-        {/* Mensaje rotante */}
         <div style={{
-          fontSize: 52, fontWeight: 900, color: 'white',
+          fontSize: 28, fontWeight: 900, letterSpacing: 6,
           fontFamily: 'Arial Black, Arial, sans-serif',
-          lineHeight: 1.1, minHeight: 120, display: 'flex',
-          alignItems: 'center', justifyContent: 'center',
-          textShadow: '0 0 40px rgba(246,211,101,0.3)',
-          transition: 'opacity 0.4s ease',
+          background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>
-          {messages[msgIndex]}
+          DRUGSTORE
         </div>
+      </div>
 
-        {/* QR + instrucción */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-          <div style={{
-            background: 'white', padding: 16, borderRadius: 20,
-            boxShadow: '0 0 40px rgba(246,211,101,0.4)',
-          }}>
-            <QRCodeSVG value={gameUrl} size={180} />
-          </div>
-          <p style={{
-            color: '#D1D5DB', fontSize: 20, margin: 0,
-            fontFamily: 'Arial, sans-serif', fontWeight: 600,
-          }}>
-            Escaneá con tu celular · Gratis
-          </p>
+      {/* Badge */}
+      <div style={{
+        position: 'relative', zIndex: 1, marginTop: 20,
+        background: 'linear-gradient(135deg, #f6d365, #fda085)',
+        borderRadius: 50, padding: '6px 20px',
+        fontSize: 13, fontWeight: 800, color: '#1a1a2e',
+        letterSpacing: 2, textTransform: 'uppercase',
+        fontFamily: 'Arial, sans-serif',
+      }}>
+        🏆 Juego de Premios
+      </div>
+
+      {/* Mensaje rotante */}
+      <div style={{
+        position: 'relative', zIndex: 1,
+        marginTop: 28, marginBottom: 28,
+        fontSize: 46, fontWeight: 900, color: 'white',
+        fontFamily: 'Arial Black, Arial, sans-serif',
+        lineHeight: 1.15, textAlign: 'center',
+        padding: '0 48px',
+        textShadow: '0 0 40px rgba(246,211,101,0.3)',
+      }}>
+        {messages[msgIndex]}
+      </div>
+
+      {/* QR + instrucción — posición fija, no se mueve */}
+      <div style={{
+        position: 'relative', zIndex: 1,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
+      }}>
+        <div style={{
+          background: 'white', padding: 16, borderRadius: 20,
+          boxShadow: '0 0 40px rgba(246,211,101,0.4)',
+        }}>
+          <QRCodeSVG value={gameUrl} size={180} />
         </div>
-
+        <p style={{
+          color: '#D1D5DB', fontSize: 20, margin: 0,
+          fontFamily: 'Arial, sans-serif', fontWeight: 600,
+          textAlign: 'center',
+        }}>
+          Escaneá con tu celular · Gratis
+        </p>
       </div>
     </div>
   )
