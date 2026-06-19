@@ -99,7 +99,7 @@ function PromoBanner({ promoMessage, large }: { promoMessage: string; large?: bo
   if (!promoMessage) return null
   return (
     <div style={{ flexShrink: 0, background: '#7c2d12', padding: large ? '14px 24px' : '8px 20px', textAlign: 'center' }}>
-      <span style={{ fontSize: large ? 8 : 13, fontWeight: 700, color: '#fed7aa', letterSpacing: '0.05em' }}>
+      <span style={{ fontSize: large ? 12 : 20, fontWeight: 700, color: '#fed7aa', letterSpacing: '0.05em' }}>
         {promoMessage}
       </span>
     </div>
@@ -168,7 +168,7 @@ function HorizontalLayout({ survey, results, promoMessage, surveyUrl, scanVisibl
           </h1>
         )}
         {promoMessage
-          ? <div style={{ background: '#7c2d12', color: '#fed7aa', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 15, maxWidth: 260, textAlign: 'center', flexShrink: 0 }}>{promoMessage}</div>
+          ? <div style={{ background: '#7c2d12', color: '#fed7aa', padding: '8px 16px', borderRadius: 8, fontWeight: 700, fontSize: 23, maxWidth: 260, textAlign: 'center', flexShrink: 0 }}>{promoMessage}</div>
           : <div style={{ width: 260, flexShrink: 0 }} />
         }
       </div>
