@@ -109,7 +109,8 @@ BEGIN
 
   -- Avanzar contador
   v_counter := v_config.global_counter + 1;
-  UPDATE game_config SET global_counter = v_counter, updated_at = now();
+  UPDATE game_config SET global_counter = v_counter, updated_at = now()
+  WHERE id = v_config.id;
 
   -- Registrar entrada
   INSERT INTO game_entries (device_fingerprint, counter_value)
