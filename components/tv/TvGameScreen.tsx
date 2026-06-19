@@ -60,7 +60,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
   }
 
   return (
-    <div style={outerStyle}>
+    <div style={{ ...outerStyle, position: 'fixed' }}>
       {/* Fondo decorativo */}
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
         <div style={{
@@ -75,60 +75,11 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
         }} />
       </div>
 
-      {/* Nombre del negocio — arriba fijo */}
-      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', paddingTop: 36, lineHeight: 1 }}>
-        <div style={{
-          fontSize: 38, fontStyle: 'italic', fontWeight: 900,
-          fontFamily: 'Georgia, serif',
-          background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-        }}>
-          Alto
-        </div>
-        <div style={{
-          fontSize: 28, fontWeight: 900, letterSpacing: 6,
-          fontFamily: 'Arial Black, Arial, sans-serif',
-          background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-        }}>
-          DRUGSTORE
-        </div>
-      </div>
-
-      {/* Badge */}
+      {/* QR anclado al fondo — posición absoluta, nunca se mueve */}
       <div style={{
-        position: 'relative', zIndex: 1, marginTop: 20,
-        background: 'linear-gradient(135deg, #f6d365, #fda085)',
-        borderRadius: 50, padding: '6px 20px',
-        fontSize: 13, fontWeight: 800, color: '#1a1a2e',
-        letterSpacing: 2, textTransform: 'uppercase',
-        fontFamily: 'Arial, sans-serif',
-      }}>
-        🏆 Juego de Premios
-      </div>
-
-      {/* Mensaje rotante — altura fija para que el QR no se mueva */}
-      <div style={{
-        position: 'relative', zIndex: 1,
-        marginTop: 28, marginBottom: 28,
-        height: 130,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '0 48px',
-      }}>
-        <span style={{
-          fontSize: 46, fontWeight: 900, color: 'white',
-          fontFamily: 'Arial Black, Arial, sans-serif',
-          lineHeight: 1.15, textAlign: 'center',
-          textShadow: '0 0 40px rgba(246,211,101,0.3)',
-        }}>
-          {messages[msgIndex]}
-        </span>
-      </div>
-
-      {/* QR + instrucción — posición fija, no se mueve */}
-      <div style={{
-        position: 'relative', zIndex: 1,
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
+        position: 'absolute', bottom: 60, left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
       }}>
         <div style={{
           background: 'white', padding: 16, borderRadius: 20,
@@ -143,6 +94,56 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
         }}>
           Escaneá con tu celular · Gratis
         </p>
+      </div>
+
+      {/* Contenido superior: nombre + badge + texto rotante */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0,
+        zIndex: 1, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', paddingTop: 36,
+      }}>
+        {/* Nombre del negocio */}
+        <div style={{ textAlign: 'center', lineHeight: 1 }}>
+          <div style={{
+            fontSize: 38, fontStyle: 'italic', fontWeight: 900,
+            fontFamily: 'Georgia, serif',
+            background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>
+            Alto
+          </div>
+          <div style={{
+            fontSize: 28, fontWeight: 900, letterSpacing: 6,
+            fontFamily: 'Arial Black, Arial, sans-serif',
+            background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>
+            DRUGSTORE
+          </div>
+        </div>
+
+        {/* Badge */}
+        <div style={{
+          marginTop: 20,
+          background: 'linear-gradient(135deg, #f6d365, #fda085)',
+          borderRadius: 50, padding: '6px 20px',
+          fontSize: 13, fontWeight: 800, color: '#1a1a2e',
+          letterSpacing: 2, textTransform: 'uppercase',
+          fontFamily: 'Arial, sans-serif',
+        }}>
+          🏆 Juego de Premios
+        </div>
+
+        {/* Mensaje rotante */}
+        <div style={{
+          marginTop: 32, padding: '0 48px',
+          fontSize: 46, fontWeight: 900, color: 'white',
+          fontFamily: 'Arial Black, Arial, sans-serif',
+          lineHeight: 1.15, textAlign: 'center',
+          textShadow: '0 0 40px rgba(246,211,101,0.3)',
+        }}>
+          {messages[msgIndex]}
+        </div>
       </div>
     </div>
   )
