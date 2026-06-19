@@ -5,15 +5,18 @@ import { supabase } from '@/lib/supabase'
 import { TvConfig, TvScreen, SurveyResult, Survey } from '@/lib/types'
 import TvSurveyScreen from '@/components/tv/TvSurveyScreen'
 import TvPromoScreen from '@/components/tv/TvPromoScreen'
+import TvGameScreen from '@/components/tv/TvGameScreen'
+import { GameConfig } from '@/lib/types'
 
 interface TvData {
   config: TvConfig
   screens: TvScreen[]
   activeSurveys: Survey[]
+  gameConfig: GameConfig | null
 }
 
 interface Slide {
-  type: 'survey' | 'promo_image'
+  type: 'survey' | 'promo_image' | 'game'
   survey?: Survey
   imageUrl?: string
 }
@@ -87,9 +90,19 @@ export default function TvPage() {
     const slides: Slide[] = []
     data.activeSurveys.forEach(s => slides.push({ type: 'survey', survey: s }))
     data.screens
-      .filter(s => s.screen_type === 'promo_image' && s.is_enabled && s.image_url)
+      .filter(s => s.is_enabled)
       .sort((a, b) => a.display_order - b.display_order)
-      .forEach(s => slides.push({ type: 'promo_image', imageUrl: s.image_url! }))
+      .forEach(s => {
+        if (s.screen_type === 'promo_image' && s.image_url) {
+          slides.push({ type: 'promo_image', imageUrl: s.image_url })
+        } else if (s.screen_type === 'game' && data.gameConfig?.is_active) {
+          slides.push({ type: 'game' })
+        }
+      })
+    // Si el juego está activo y no hay slide de juego configurada, agregarla al final
+    if (data.gameConfig?.is_active && !slides.some(s => s.type === 'game')) {
+      slides.push({ type: 'game' })
+    }
     return slides
   }
 
@@ -151,6 +164,19 @@ export default function TvPage() {
 
   if (currentSlide.type === 'promo_image' && currentSlide.imageUrl) {
     return <><TvPromoScreen imageUrl={currentSlide.imageUrl} />{fsButton}</>
+  }
+
+  if (currentSlide.type === 'game') {
+    return (
+      <>
+        <TvGameScreen
+          gameMessages={[]}
+          orientation={orientation}
+          counter={tvData.gameConfig?.global_counter}
+        />
+        {fsButton}
+      </>
+    )
   }
 
   return (

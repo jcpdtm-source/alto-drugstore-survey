@@ -52,6 +52,22 @@ export default async function DashboardPage() {
             </Link>
           )}
 
+          {/* Sistema de Premios - solo super admin */}
+          {session.role === 'super' && (
+            <Link
+              href="/admin/juego"
+              className="bg-gray-800 hover:bg-gray-700 rounded-2xl p-6 transition-colors group"
+            >
+              <div className="text-3xl mb-3">🎰</div>
+              <h2 className="text-white font-bold text-lg group-hover:text-yellow-400 transition-colors">
+                Sistema de Premios
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">
+                Premios, consolaciones, historial y contador
+              </p>
+            </Link>
+          )}
+
           {/* TV en vivo */}
           <a
             href="/tv"

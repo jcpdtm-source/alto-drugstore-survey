@@ -55,7 +55,7 @@ export interface TvConfig {
 
 export interface TvScreen {
   id: string
-  screen_type: 'survey' | 'promo_image'
+  screen_type: 'survey' | 'promo_image' | 'game'
   display_order: number
   is_enabled: boolean
   image_url: string | null
@@ -67,4 +67,57 @@ export interface AdminSession {
   adminId: string
   role: AdminRole
   name: string
+}
+
+// ── Sistema de Premios ──────────────────────────────────────
+
+export interface GameConfig {
+  id: string
+  is_active: boolean
+  global_counter: number
+  redemption_hours: number
+  updated_at: string
+}
+
+export interface Prize {
+  id: string
+  name: string
+  message: string
+  activation_vote: number
+  frequency: number
+  priority: number
+  stock: number | null
+  stock_remaining: number | null
+  is_active: boolean
+  deliveries_count?: number
+  created_at: string
+}
+
+export interface ConsolationMessage {
+  id: string
+  message: string
+  is_active: boolean
+  display_order: number
+}
+
+export interface PrizeDelivery {
+  id: string
+  prize_name: string
+  prize_message: string
+  device_fingerprint: string
+  counter_value: number
+  expires_at: string
+  created_at: string
+}
+
+export interface PlayGameResult {
+  won: boolean
+  counter: number
+  prize_id?: string
+  prize_name?: string
+  prize_message?: string
+  delivery_id?: string
+  expires_at?: string
+  consolation_message?: string
+  error?: string
 }

@@ -15,7 +15,7 @@ async function getConfig(db: ReturnType<typeof supabaseAdmin>) {
 export async function GET() {
   const db = supabaseAdmin()
 
-  const [config, screensRes, activeSurveysRes] = await Promise.all([
+  const [config, screensRes, activeSurveysRes, gameConfigRes] = await Promise.all([
     getConfig(db),
     db.from('tv_screens').select('*').order('display_order'),
     db.from('surveys')
@@ -23,6 +23,7 @@ export async function GET() {
       .eq('is_active', true)
       .order('created_at', { ascending: true })
       .limit(2),
+    db.rpc('get_game_config').then(r => r.data ?? null).then(d => d, () => null),
   ])
 
   const safeConfig = config || {
@@ -37,6 +38,7 @@ export async function GET() {
     screens: screensRes.data || [],
     activeSurveys: activeSurveysRes.data || [],
     activeSurvey: activeSurveysRes.data?.[0] || null,
+    gameConfig: gameConfigRes || null,
   })
 }
 
