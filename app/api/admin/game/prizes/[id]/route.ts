@@ -37,6 +37,10 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   const { id } = await params
   const db = supabaseAdmin()
+
+  // Borrar entregas asociadas primero (FK constraint)
+  await db.from('prize_deliveries').delete().eq('prize_id', id)
+
   const { error } = await db.from('prizes').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })

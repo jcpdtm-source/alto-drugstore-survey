@@ -76,6 +76,7 @@ export interface GameConfig {
   is_active: boolean
   global_counter: number
   redemption_hours: number
+  win_cooldown_days: number
   updated_at: string
 }
 
@@ -119,5 +120,6 @@ export interface PlayGameResult {
   delivery_id?: string
   expires_at?: string
   consolation_message?: string
+  already_won_cooldown?: boolean
   error?: string
 }

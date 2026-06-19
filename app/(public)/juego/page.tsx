@@ -61,7 +61,7 @@ function WonScreen({ result, onRetry }: { result: PlayGameResult; onRetry: () =>
           <p style={{ color: '#1a1a2e', fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 12px' }}>
             ¡GANASTE UN PREMIO!
           </p>
-          <p style={{ color: '#1a1a2e', fontSize: 22, fontWeight: 900, margin: '0 0 8px', lineHeight: 1.3 }}>
+          <p style={{ color: '#1a1a2e', fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.3 }}>
             {result.prize_message}
           </p>
         </div>
@@ -76,10 +76,7 @@ function WonScreen({ result, onRetry }: { result: PlayGameResult; onRetry: () =>
           ) : (
             <>
               <p style={{ color: '#9CA3AF', fontSize: 12, margin: '0 0 6px' }}>Válido hasta las {expiry} hs</p>
-              <div style={{
-                background: 'rgba(0,0,0,0.3)', borderRadius: 10, padding: '10px 16px',
-                display: 'inline-block',
-              }}>
+              <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 10, padding: '10px 16px', display: 'inline-block' }}>
                 <span style={{ color: '#f6d365', fontSize: 32, fontWeight: 900, fontFamily: 'monospace', letterSpacing: 4 }}>
                   {countdown}
                 </span>
@@ -88,29 +85,27 @@ function WonScreen({ result, onRetry }: { result: PlayGameResult; onRetry: () =>
           )}
         </div>
 
-        <button
-          onClick={onRetry}
-          style={{
-            background: 'rgba(255,255,255,0.1)', color: 'white',
-            border: '1px solid rgba(255,255,255,0.3)', borderRadius: 12,
-            padding: '12px 24px', fontSize: 15, cursor: 'pointer', width: '100%',
-          }}
-        >
+        <button onClick={onRetry} style={{
+          background: 'rgba(255,255,255,0.1)', color: 'white',
+          border: '1px solid rgba(255,255,255,0.3)', borderRadius: 12,
+          padding: '12px 24px', fontSize: 15, cursor: 'pointer', width: '100%',
+        }}>
           Volver a participar
         </button>
-        <p style={{ color: '#555', fontSize: 12, marginTop: 20 }}>
-          Alto Drugstore · {new Date().getFullYear()}
-        </p>
+        <p style={{ color: '#555', fontSize: 12, marginTop: 20 }}>Alto Drugstore · {new Date().getFullYear()}</p>
       </div>
     </div>
   )
 }
 
-type State = 'idle' | 'loading' | 'won' | 'lost' | 'inactive' | 'error'
+type State = 'idle' | 'loading' | 'won' | 'lost' | 'cooldown' | 'enough' | 'inactive' | 'error'
+
+const MAX_CONSECUTIVE_TRIES = 3
 
 export default function JuegoPage() {
   const [state, setState] = useState<State>('idle')
   const [result, setResult] = useState<PlayGameResult | null>(null)
+  const [consecutiveLosses, setConsecutiveLosses] = useState(0)
 
   const play = useCallback(async () => {
     setState('loading')
@@ -124,37 +119,49 @@ export default function JuegoPage() {
       const data: PlayGameResult = await res.json()
 
       if (res.status === 403 || data.error === 'game_inactive') {
-        setState('inactive')
-        return
+        setState('inactive'); return
       }
       if (!res.ok || data.error) {
-        setState('error')
-        return
+        setState('error'); return
       }
 
       setResult(data)
-      setState(data.won ? 'won' : 'lost')
+
+      if (data.won) {
+        setConsecutiveLosses(0)
+        setState('won')
+      } else if (data.already_won_cooldown) {
+        setState('cooldown')
+      } else {
+        const newLosses = consecutiveLosses + 1
+        setConsecutiveLosses(newLosses)
+        if (newLosses >= MAX_CONSECUTIVE_TRIES) {
+          setState('enough')
+        } else {
+          setState('lost')
+        }
+      }
     } catch {
       setState('error')
     }
-  }, [])
+  }, [consecutiveLosses])
 
-  useEffect(() => { play() }, [play])
+  useEffect(() => { play() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Pantalla ganador ────────────────────────────────────────
-  if (state === 'won' && result) {
-    return <WonScreen result={result} onRetry={() => { setState('idle'); play() }} />
+  const baseStyle: React.CSSProperties = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+    display: 'flex', flexDirection: 'column', alignItems: 'center',
+    justifyContent: 'center', padding: '24px', fontFamily: 'Arial, sans-serif',
   }
 
-  // ── Pantalla consolación ────────────────────────────────────
+  if (state === 'won' && result) {
+    return <WonScreen result={result} onRetry={() => { setConsecutiveLosses(0); play() }} />
+  }
+
   if (state === 'lost' && result) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', padding: '24px', fontFamily: 'Arial, sans-serif',
-      }}>
+      <div style={baseStyle}>
         <div style={{ textAlign: 'center', maxWidth: 400, width: '100%' }}>
           <div style={{ fontSize: 64, marginBottom: 16 }}>⚽</div>
           <div style={{
@@ -168,35 +175,75 @@ export default function JuegoPage() {
               Seguí intentando, el próximo premio puede ser tuyo
             </p>
           </div>
-
-          <button
-            onClick={play}
-            style={{
-              background: 'linear-gradient(135deg, #f6d365, #fda085)',
-              color: '#1a1a2e', border: 'none', borderRadius: 12,
-              padding: '14px 24px', fontSize: 16, fontWeight: 700,
-              cursor: 'pointer', width: '100%',
-            }}
-          >
+          <button onClick={play} style={{
+            background: 'linear-gradient(135deg, #f6d365, #fda085)',
+            color: '#1a1a2e', border: 'none', borderRadius: 12,
+            padding: '14px 24px', fontSize: 16, fontWeight: 700, cursor: 'pointer', width: '100%',
+          }}>
             Intentar de nuevo
           </button>
-
-          <p style={{ color: '#555', fontSize: 12, marginTop: 20 }}>
-            Alto Drugstore · {new Date().getFullYear()}
-          </p>
+          <p style={{ color: '#555', fontSize: 12, marginTop: 20 }}>Alto Drugstore · {new Date().getFullYear()}</p>
         </div>
       </div>
     )
   }
 
-  // ── Inactivo ────────────────────────────────────────────────
+  // Ya participó demasiadas veces seguidas sin ganar
+  if (state === 'enough') {
+    return (
+      <div style={baseStyle}>
+        <div style={{ textAlign: 'center', maxWidth: 400, width: '100%' }}>
+          <div style={{ fontSize: 56, marginBottom: 16 }}>😄</div>
+          <div style={{
+            background: 'rgba(255,255,255,0.08)', borderRadius: 24,
+            padding: '32px 24px', marginBottom: 24, border: '1px solid rgba(255,255,255,0.15)',
+          }}>
+            <p style={{ color: 'white', fontSize: 20, fontWeight: 700, margin: '0 0 12px' }}>
+              ¡Ya participaste mucho!
+            </p>
+            <p style={{ color: '#9CA3AF', fontSize: 15, margin: 0, lineHeight: 1.5 }}>
+              Volvé en un rato para tener otra chance de ganar. Los premios se siguen repartiendo.
+            </p>
+          </div>
+          <button onClick={() => { setConsecutiveLosses(0); play() }} style={{
+            background: 'rgba(255,255,255,0.1)', color: 'white',
+            border: '1px solid rgba(255,255,255,0.3)', borderRadius: 12,
+            padding: '12px 24px', fontSize: 15, cursor: 'pointer', width: '100%',
+          }}>
+            Igual quiero intentar de nuevo
+          </button>
+          <p style={{ color: '#555', fontSize: 12, marginTop: 20 }}>Alto Drugstore · {new Date().getFullYear()}</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Ya ganó recientemente (en cooldown)
+  if (state === 'cooldown') {
+    return (
+      <div style={baseStyle}>
+        <div style={{ textAlign: 'center', maxWidth: 400, width: '100%' }}>
+          <div style={{ fontSize: 56, marginBottom: 16 }}>🌟</div>
+          <div style={{
+            background: 'rgba(255,255,255,0.08)', borderRadius: 24,
+            padding: '32px 24px', marginBottom: 24, border: '1px solid rgba(255,255,255,0.15)',
+          }}>
+            <p style={{ color: 'white', fontSize: 20, fontWeight: 700, margin: '0 0 12px' }}>
+              ¡Ya ganaste un premio!
+            </p>
+            <p style={{ color: '#9CA3AF', fontSize: 15, margin: 0, lineHeight: 1.5 }}>
+              Podés seguir participando pero los premios se reparten para que todos tengan su chance. Volvé en unos días.
+            </p>
+          </div>
+          <p style={{ color: '#555', fontSize: 12, marginTop: 20 }}>Alto Drugstore · {new Date().getFullYear()}</p>
+        </div>
+      </div>
+    )
+  }
+
   if (state === 'inactive') {
     return (
-      <div style={{
-        minHeight: '100vh', background: '#111',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 24, fontFamily: 'Arial, sans-serif',
-      }}>
+      <div style={{ minHeight: '100vh', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'Arial, sans-serif' }}>
         <div style={{ textAlign: 'center', color: 'white' }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>⏸️</div>
           <p style={{ fontSize: 18, fontWeight: 700 }}>El juego está pausado</p>
@@ -206,13 +253,8 @@ export default function JuegoPage() {
     )
   }
 
-  // ── Loading / error / idle ──────────────────────────────────
   return (
-    <div style={{
-      minHeight: '100vh', background: '#111',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontFamily: 'Arial, sans-serif',
-    }}>
+    <div style={{ minHeight: '100vh', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial, sans-serif' }}>
       {state === 'error' ? (
         <div style={{ textAlign: 'center', color: 'white' }}>
           <p style={{ fontSize: 18 }}>Algo salió mal</p>
