@@ -83,6 +83,26 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal',
         padding: '40px 60px', display: 'flex', flexDirection: 'column',
         alignItems: 'center', gap: 32, maxWidth: 800,
       }}>
+        {/* Nombre del negocio */}
+        <div style={{ textAlign: 'center', lineHeight: 1 }}>
+          <div style={{
+            fontSize: 38, fontStyle: 'italic', fontWeight: 900,
+            fontFamily: 'Georgia, serif',
+            background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>
+            Alto
+          </div>
+          <div style={{
+            fontSize: 28, fontWeight: 900, letterSpacing: 6,
+            fontFamily: 'Arial Black, Arial, sans-serif',
+            background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          }}>
+            DRUGSTORE
+          </div>
+        </div>
+
         {/* Badge */}
         <div style={{
           background: 'linear-gradient(135deg, #f6d365, #fda085)',
@@ -122,18 +142,6 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal',
           </p>
         </div>
 
-        {/* Contador (opcional) */}
-        {counter != null && counter > 0 && (
-          <div style={{
-            background: 'rgba(255,255,255,0.06)', borderRadius: 12,
-            padding: '10px 24px', border: '1px solid rgba(255,255,255,0.1)',
-          }}>
-            <span style={{ color: '#9CA3AF', fontSize: 14, fontFamily: 'Arial, sans-serif' }}>
-              Participaciones totales:{' '}
-              <span style={{ color: '#f6d365', fontWeight: 700 }}>{counter.toLocaleString()}</span>
-            </span>
-          </div>
-        )}
       </div>
     </div>
   )
