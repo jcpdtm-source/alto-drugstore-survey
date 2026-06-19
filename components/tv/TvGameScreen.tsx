@@ -107,17 +107,22 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
         🏆 Juego de Premios
       </div>
 
-      {/* Mensaje rotante */}
+      {/* Mensaje rotante — altura fija para que el QR no se mueva */}
       <div style={{
         position: 'relative', zIndex: 1,
         marginTop: 28, marginBottom: 28,
-        fontSize: 46, fontWeight: 900, color: 'white',
-        fontFamily: 'Arial Black, Arial, sans-serif',
-        lineHeight: 1.15, textAlign: 'center',
+        height: 130,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '0 48px',
-        textShadow: '0 0 40px rgba(246,211,101,0.3)',
       }}>
-        {messages[msgIndex]}
+        <span style={{
+          fontSize: 46, fontWeight: 900, color: 'white',
+          fontFamily: 'Arial Black, Arial, sans-serif',
+          lineHeight: 1.15, textAlign: 'center',
+          textShadow: '0 0 40px rgba(246,211,101,0.3)',
+        }}>
+          {messages[msgIndex]}
+        </span>
       </div>
 
       {/* QR + instrucción — posición fija, no se mueve */}
