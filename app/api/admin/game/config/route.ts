@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getSession } from '@/lib/auth'
 
+function unwrap(data: unknown) {
+  return Array.isArray(data) ? data[0] ?? null : data
+}
+
 export async function GET() {
   const db = supabaseAdmin()
   const { data, error } = await db.rpc('get_game_config')
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  return NextResponse.json(unwrap(data))
 }
 
 export async function PATCH(req: NextRequest) {
@@ -23,6 +27,8 @@ export async function PATCH(req: NextRequest) {
   if (typeof body.redemption_hours === 'number') updates.redemption_hours = body.redemption_hours
   if (typeof body.global_counter === 'number') updates.global_counter = body.global_counter
   if (typeof body.win_cooldown_days === 'number') updates.win_cooldown_days = body.win_cooldown_days
+  if (Array.isArray(body.game_messages)) updates.game_messages = body.game_messages
+  if (typeof body.game_text_color === "string") updates.game_text_color = body.game_text_color
 
   updates.updated_at = new Date().toISOString()
 
@@ -30,5 +36,5 @@ export async function PATCH(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   const { data } = await db.rpc('get_game_config')
-  return NextResponse.json(data)
+  return NextResponse.json(unwrap(data))
 }

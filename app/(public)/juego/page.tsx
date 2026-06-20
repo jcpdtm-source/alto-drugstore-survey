@@ -92,7 +92,7 @@ function WonScreen({ result, onRetry }: { result: PlayGameResult; onRetry: () =>
         }}>
           Volver a participar
         </button>
-        <p style={{ color: '#555', fontSize: 12, marginTop: 20 }}>Alto Drugstore · {new Date().getFullYear()}</p>
+        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 36, marginTop: 24, opacity: 0.5, objectFit: 'contain' }} />
       </div>
     </div>
   )
@@ -182,7 +182,7 @@ export default function JuegoPage() {
           }}>
             Intentar de nuevo
           </button>
-          <p style={{ color: '#555', fontSize: 12, marginTop: 20 }}>Alto Drugstore · {new Date().getFullYear()}</p>
+        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 36, marginTop: 24, opacity: 0.5, objectFit: 'contain' }} />
         </div>
       </div>
     )
@@ -212,7 +212,7 @@ export default function JuegoPage() {
           }}>
             Igual quiero intentar de nuevo
           </button>
-          <p style={{ color: '#555', fontSize: 12, marginTop: 20 }}>Alto Drugstore · {new Date().getFullYear()}</p>
+        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 36, marginTop: 24, opacity: 0.5, objectFit: 'contain' }} />
         </div>
       </div>
     )
@@ -235,7 +235,7 @@ export default function JuegoPage() {
               Podés seguir participando pero los premios se reparten para que todos tengan su chance. Volvé en unos días.
             </p>
           </div>
-          <p style={{ color: '#555', fontSize: 12, marginTop: 20 }}>Alto Drugstore · {new Date().getFullYear()}</p>
+        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 36, marginTop: 24, opacity: 0.5, objectFit: 'contain' }} />
         </div>
       </div>
     )
@@ -263,7 +263,10 @@ export default function JuegoPage() {
           </button>
         </div>
       ) : (
-        <p style={{ color: 'white', fontSize: 18 }}>Participando...</p>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: 'white', fontSize: 18, marginBottom: 32 }}>Participando...</p>
+          <img src="/logo.png" alt="Alto Drugstore" style={{ height: 36, opacity: 0.5, objectFit: 'contain' }} />
+        </div>
       )}
     </div>
   )

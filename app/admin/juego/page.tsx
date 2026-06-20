@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useRef } from 'react'
 import { Prize, ConsolationMessage, PrizeDelivery, GameConfig } from '@/lib/types'
 
 type EditingPrize = {
@@ -25,6 +26,9 @@ export default function JuegoAdminPage() {
   const [editingPrize, setEditingPrize] = useState<EditingPrize | null>(null)
 
   const [newPrize, setNewPrize] = useState({ name: '', message: '', activation_vote: 1000, frequency: 5000, priority: 1, stock: '', is_active: true })
+  const [uploadingGameImg, setUploadingGameImg] = useState(false)
+  const [gameImgError, setGameImgError] = useState('')
+  const gameImgRef = useRef<HTMLInputElement>(null)
   const [newConsolation, setNewConsolation] = useState('')
 
   const load = useCallback(async () => {
@@ -221,6 +225,81 @@ export default function JuegoAdminPage() {
                 </button>
               </div>
             </div>
+
+
+            {/* Mensajes TV */}
+            <div>
+              <label style={{ color: '#D1D5DB', fontSize: 13, fontWeight: 600 }}>Mensajes en pantalla de TV</label>
+              <p style={{ color: '#9CA3AF', fontSize: 12, margin: '2px 0 8px' }}>Aparecen rotando sobre el QR. Un mensaje por línea.</p>
+              <textarea
+                rows={5}
+                value={(config.game_messages ?? []).join('\n')}
+                onChange={e => setConfig({ ...config, game_messages: e.target.value.split('\n') })}
+                style={{ ...inputStyle, width: '100%', resize: 'vertical', fontFamily: 'Arial, sans-serif' }}
+                placeholder={'¿Ya participaste?\nEscaneá y participá ahora\nGratis · Rápido · Vale la pena'}
+              />
+              <button onClick={() => saveConfig({ game_messages: config.game_messages })} style={{ ...btnPrimary, marginTop: 8 }} disabled={saving}>
+                Guardar mensajes
+              </button>
+            </div>
+
+            {/* Color de textos TV */}
+            <div>
+              <label style={{ color: '#D1D5DB', fontSize: 13, fontWeight: 600 }}>Color de textos en TV</label>
+              <p style={{ color: '#9CA3AF', fontSize: 12, margin: '2px 0 8px' }}>Aplica a los mensajes rotantes y al texto "Escaneá con tu celular"</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <input
+                  type="color"
+                  value={config.game_text_color || '#ffffff'}
+                  onChange={e => setConfig({ ...config, game_text_color: e.target.value })}
+                  style={{ width: 48, height: 36, border: 'none', borderRadius: 8, cursor: 'pointer', background: 'none' }}
+                />
+                <span style={{ color: '#D1D5DB', fontSize: 13, fontFamily: 'monospace' }}>{config.game_text_color || '#ffffff'}</span>
+                <button onClick={() => saveConfig({ game_text_color: config.game_text_color })} style={btnPrimary} disabled={saving}>
+                  Guardar color
+                </button>
+              </div>
+            </div>
+
+            {/* Imagen debajo del QR en TV */}
+            <div>
+              <label style={{ color: '#D1D5DB', fontSize: 13, fontWeight: 600 }}>Imagen debajo del QR (TV)</label>
+              <p style={{ color: '#9CA3AF', fontSize: 12, margin: '2px 0 8px' }}>Ocupa el tercio inferior de la pantalla. JPG, PNG o GIF, máx 5MB.</p>
+              {config.game_screen_image_url && (
+                <div style={{ marginBottom: 10 }}>
+                  <img src={config.game_screen_image_url} alt="Preview" style={{ width: '100%', maxHeight: 120, objectFit: 'cover', borderRadius: 8 }} />
+                  <button
+                    onClick={async () => {
+                      await fetch('/api/admin/game/image', { method: 'DELETE' })
+                      setConfig({ ...config, game_screen_image_url: null })
+                    }}
+                    style={{ ...btnDanger, marginTop: 8, padding: '6px 14px', fontSize: 12 }}>
+                    Quitar imagen
+                  </button>
+                </div>
+              )}
+              <input ref={gameImgRef} type="file" accept="image/jpeg,image/jpg,image/png,image/gif" style={{ display: 'none' }}
+                onChange={async e => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  setUploadingGameImg(true)
+                  setGameImgError('')
+                  const fd = new FormData()
+                  fd.append('file', file)
+                  const res = await fetch('/api/admin/game/image', { method: 'POST', body: fd })
+                  const result = await res.json()
+                  if (!res.ok) { setGameImgError(result.error || 'Error al subir') }
+                  else { setConfig({ ...config, game_screen_image_url: result.url }) }
+                  setUploadingGameImg(false)
+                  if (gameImgRef.current) gameImgRef.current.value = ''
+                }}
+              />
+              <button onClick={() => gameImgRef.current?.click()} style={btnPrimary} disabled={uploadingGameImg}>
+                {uploadingGameImg ? 'Subiendo...' : config.game_screen_image_url ? 'Reemplazar imagen' : 'Subir imagen'}
+              </button>
+              {gameImgError && <p style={{ color: '#f87171', fontSize: 12, marginTop: 6 }}>{gameImgError}</p>}
+            </div>
+
 
             {/* Reiniciar contador */}
             <div>

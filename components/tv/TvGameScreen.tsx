@@ -7,6 +7,8 @@ interface Props {
   gameMessages: string[]
   orientation?: 'horizontal' | 'vertical'
   counter?: number
+  imageUrl?: string | null
+  textColor?: string
 }
 
 const MESSAGES_DEFAULT = [
@@ -16,7 +18,7 @@ const MESSAGES_DEFAULT = [
   'Escaneá y participá ahora',
 ]
 
-export default function TvGameScreen({ gameMessages, orientation = 'horizontal' }: Props) {
+export default function TvGameScreen({ gameMessages, orientation = 'horizontal', imageUrl, textColor = '#ffffff' }: Props) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
   const gameUrl = `${appUrl}/juego`
 
@@ -26,7 +28,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
   useEffect(() => {
     const t = setInterval(() => {
       setMsgIndex(i => (i + 1) % messages.length)
-    }, 3500)
+    }, 5250)
     return () => clearInterval(t)
   }, [messages.length])
 
@@ -42,7 +44,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
     left: '50%',
     marginTop: 'calc(-100vw / 3.2)',
     marginLeft: 'calc(-100vh / 3.2)',
-    backgroundColor: '#0a0a1a',
+    backgroundColor: '#1EABF1',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -51,7 +53,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
   } : {
     width: '100vw',
     height: '100vh',
-    backgroundColor: '#0a0a1a',
+    backgroundColor: '#1EABF1',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -65,20 +67,30 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
         <div style={{
           position: 'absolute', width: 600, height: 600,
-          background: 'radial-gradient(circle, rgba(246,211,101,0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%)',
           top: '-200px', left: '-100px',
         }} />
         <div style={{
           position: 'absolute', width: 500, height: 500,
-          background: 'radial-gradient(circle, rgba(253,160,133,0.06) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)',
           bottom: '-150px', right: '-100px',
         }} />
       </div>
 
-      {/* QR anclado al fondo — posición absoluta, nunca se mueve */}
+      {/* Imagen debajo del QR (opcional) */}
+      {imageUrl && (
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          height: '33%', overflow: 'hidden', zIndex: 1,
+        }}>
+          <img src={imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+      )}
+
+      {/* QR anclado al centro — posición absoluta, nunca se mueve */}
       <div style={{
-        position: 'absolute', bottom: 60, left: '50%',
-        transform: 'translateX(-50%)',
+        position: 'absolute', top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
         zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
       }}>
         <div style={{
@@ -88,46 +100,31 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
           <QRCodeSVG value={gameUrl} size={180} />
         </div>
         <p style={{
-          color: '#D1D5DB', fontSize: 20, margin: 0,
-          fontFamily: 'Arial, sans-serif', fontWeight: 600,
-          textAlign: 'center',
+          color: textColor, fontSize: 20, margin: 0,
+          fontFamily: 'Arial, sans-serif', fontWeight: 700,
+          textAlign: 'center', textShadow: '0 1px 4px rgba(0,0,0,0.3)',
         }}>
           Escaneá con tu celular · Gratis
         </p>
       </div>
 
-      {/* Contenido superior: nombre + badge + texto rotante */}
+      {/* Contenido superior: logo + badge + texto rotante */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0,
-        zIndex: 1, display: 'flex', flexDirection: 'column',
-        alignItems: 'center', paddingTop: 36,
+        bottom: '65%',
+        zIndex: 3, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'flex-start',
+        paddingTop: 12, overflow: 'hidden',
       }}>
-        {/* Nombre del negocio */}
-        <div style={{ textAlign: 'center', lineHeight: 1 }}>
-          <div style={{
-            fontSize: 38, fontStyle: 'italic', fontWeight: 900,
-            fontFamily: 'Georgia, serif',
-            background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>
-            Alto
-          </div>
-          <div style={{
-            fontSize: 28, fontWeight: 900, letterSpacing: 6,
-            fontFamily: 'Arial Black, Arial, sans-serif',
-            background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>
-            DRUGSTORE
-          </div>
-        </div>
+        {/* Logo del negocio */}
+        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 234, objectFit: 'contain', flexShrink: 0 }} />
 
         {/* Badge */}
         <div style={{
-          marginTop: 20,
+          marginTop: 10, flexShrink: 0,
           background: 'linear-gradient(135deg, #f6d365, #fda085)',
-          borderRadius: 50, padding: '6px 20px',
-          fontSize: 13, fontWeight: 800, color: '#1a1a2e',
+          borderRadius: 50, padding: '10px 28px',
+          fontSize: 20, fontWeight: 800, color: '#1a1a2e',
           letterSpacing: 2, textTransform: 'uppercase',
           fontFamily: 'Arial, sans-serif',
         }}>
@@ -136,11 +133,12 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
 
         {/* Mensaje rotante */}
         <div style={{
-          marginTop: 32, padding: '0 48px',
-          fontSize: 46, fontWeight: 900, color: 'white',
+          marginTop: 12, padding: '0 48px',
+          fontSize: 46, fontWeight: 900, color: textColor,
           fontFamily: 'Arial Black, Arial, sans-serif',
           lineHeight: 1.15, textAlign: 'center',
-          textShadow: '0 0 40px rgba(246,211,101,0.3)',
+          textShadow: '0 2px 8px rgba(0,0,0,0.25)',
+          overflow: 'hidden',
         }}>
           {messages[msgIndex]}
         </div>

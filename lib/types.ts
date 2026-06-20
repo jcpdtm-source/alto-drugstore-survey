@@ -61,6 +61,7 @@ export interface TvScreen {
   image_url: string | null
   image_name: string | null
   survey_id: string | null
+  duration_seconds: number | null
 }
 
 export interface AdminSession {
@@ -77,6 +78,9 @@ export interface GameConfig {
   global_counter: number
   redemption_hours: number
   win_cooldown_days: number
+  game_messages: string[]
+  game_screen_image_url: string | null
+  game_text_color: string
   updated_at: string
 }
 

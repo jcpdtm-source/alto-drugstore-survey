@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { TvConfig, TvScreen, SurveyResult, Survey } from '@/lib/types'
 import TvSurveyScreen from '@/components/tv/TvSurveyScreen'
@@ -19,10 +19,13 @@ interface Slide {
   type: 'survey' | 'promo_image' | 'game'
   survey?: Survey
   imageUrl?: string
+  durationSeconds?: number | null
 }
 
 export default function TvPage() {
   const [tvData, setTvData] = useState<TvData | null>(null)
+  const rotationRef = useRef<{ enabled: boolean; slides: Slide[]; defaultInterval: number }>({ enabled: false, slides: [], defaultInterval: 10 })
+  const [rotationReady, setRotationReady] = useState(false)
   const [resultsBySurvey, setResultsBySurvey] = useState<Record<string, SurveyResult[]>>({})
   const [slideIndex, setSlideIndex] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -88,15 +91,16 @@ export default function TvPage() {
 
   const buildSlides = (data: TvData): Slide[] => {
     const slides: Slide[] = []
-    data.activeSurveys.forEach(s => slides.push({ type: 'survey', survey: s }))
+    const surveyScreen = data.screens.find(s => s.screen_type === 'survey')
+    data.activeSurveys.forEach(s => slides.push({ type: 'survey', survey: s, durationSeconds: surveyScreen?.duration_seconds }))
     data.screens
       .filter(s => s.is_enabled)
       .sort((a, b) => a.display_order - b.display_order)
       .forEach(s => {
         if (s.screen_type === 'promo_image' && s.image_url) {
-          slides.push({ type: 'promo_image', imageUrl: s.image_url })
+          slides.push({ type: 'promo_image', imageUrl: s.image_url, durationSeconds: s.duration_seconds })
         } else if (s.screen_type === 'game' && data.gameConfig?.is_active) {
-          slides.push({ type: 'game' })
+          slides.push({ type: 'game', durationSeconds: s.duration_seconds })
         }
       })
     // Si el juego está activo y no hay slide de juego configurada, agregarla al final
@@ -106,19 +110,30 @@ export default function TvPage() {
     return slides
   }
 
-  // Rotación
+  // Actualizar ref cuando cambia tvData (sin reiniciar el timer)
   useEffect(() => {
     if (!tvData) return
-    const slides = buildSlides(tvData)
-    if (!tvData.config.screen_rotation_enabled || slides.length <= 1) {
-      setSlideIndex(0)
-      return
+    rotationRef.current = {
+      enabled: tvData.config.screen_rotation_enabled,
+      slides: buildSlides(tvData),
+      defaultInterval: tvData.config.rotation_interval_seconds,
     }
-    const interval = setInterval(() => {
-      setSlideIndex(prev => (prev + 1) % slides.length)
-    }, tvData.config.rotation_interval_seconds * 1000)
-    return () => clearInterval(interval)
+    // Arrancar el timer la primera vez que llega tvData
+    if (!rotationReady) setRotationReady(true)
   }, [tvData])
+
+  // Rotación — depende de slideIndex y rotationReady (no de tvData, para que el poll no cancele el timer)
+  useEffect(() => {
+    if (!rotationReady) return
+    const { enabled, slides, defaultInterval } = rotationRef.current
+    if (!enabled || slides.length <= 1) return
+    const current = slides[slideIndex] || slides[0]
+    const duration = (current?.durationSeconds ?? defaultInterval) * 1000
+    const t = setTimeout(() => {
+      setSlideIndex(prev => (prev + 1) % rotationRef.current.slides.length)
+    }, duration)
+    return () => clearTimeout(t)
+  }, [slideIndex, rotationReady])
 
   useEffect(() => {
     setShowFsButton(true)
@@ -170,9 +185,11 @@ export default function TvPage() {
     return (
       <>
         <TvGameScreen
-          gameMessages={[]}
+          gameMessages={tvData.gameConfig?.game_messages ?? []}
           orientation={orientation}
           counter={tvData.gameConfig?.global_counter}
+          imageUrl={tvData.gameConfig?.game_screen_image_url}
+          textColor={tvData.gameConfig?.game_text_color ?? '#ffffff'}
         />
         {fsButton}
       </>
