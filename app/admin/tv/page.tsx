@@ -20,6 +20,9 @@ export default function TvAdminPage() {
   const [saveError, setSaveError] = useState('')
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [videoUrl, setVideoUrl] = useState('')
+  const [addingVideo, setAddingVideo] = useState(false)
+  const [videoError, setVideoError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const loadData = async () => {
@@ -87,8 +90,30 @@ export default function TvAdminPage() {
     })
   }
 
+  const addVideoScreen = async () => {
+    if (!videoUrl.trim()) return
+    setAddingVideo(true)
+    setVideoError('')
+    const { data: screens } = await fetch('/api/tv').then(r => r.json()).then(d => ({ data: d.screens }))
+    const nextOrder = ((screens?.sort((a: any, b: any) => b.display_order - a.display_order)?.[0]?.display_order ?? -1) + 1)
+    const res = await fetch('/api/tv/screens/video', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ video_url: videoUrl.trim(), display_order: nextOrder }),
+    })
+    const result = await res.json()
+    if (!res.ok) {
+      setVideoError(result.error || 'Error al agregar video')
+    } else {
+      setVideoUrl('')
+      await loadData()
+    }
+    setAddingVideo(false)
+  }
+
   const deleteScreen = async (screen: TvScreen) => {
-    if (!confirm(`¿Eliminar la imagen "${screen.image_name || 'esta pantalla'}"?`)) return
+    const label = screen.screen_type === 'video' ? 'este video' : `la imagen "${screen.image_name || 'esta pantalla'}"`
+    if (!confirm(`¿Eliminar ${label}?`)) return
     await fetch(`/api/tv/screens/${screen.id}`, { method: 'DELETE' })
     loadData()
   }
@@ -124,6 +149,7 @@ export default function TvAdminPage() {
   )
 
   const promoScreens = data.screens.filter(s => s.screen_type === 'promo_image')
+  const videoScreens = data.screens.filter(s => s.screen_type === 'video')
   const gameScreen = data.screens.find(s => s.screen_type === 'game')
   const surveyScreen = data.screens.find(s => s.screen_type === 'survey')
 
@@ -131,7 +157,16 @@ export default function TvAdminPage() {
     <div className="min-h-screen bg-gray-900 p-8">
       <div className="max-w-2xl mx-auto">
         <Link href="/admin/dashboard" className="text-gray-400 text-sm hover:text-white">← Dashboard</Link>
-        <h1 className="text-2xl font-bold text-white mt-2 mb-8">Configuración de Pantalla TV</h1>
+        <div className="flex items-center gap-3 mt-2 mb-8">
+          <h1 className="text-2xl font-bold text-white">Configuración de Pantalla TV</h1>
+          <span style={{
+            background: process.env.NEXT_PUBLIC_APP_ENV === 'dev' ? '#f59e0b' : '#10b981',
+            color: '#000', fontSize: 11, fontWeight: 800, padding: '2px 10px',
+            borderRadius: 20, letterSpacing: '0.08em', textTransform: 'uppercase',
+          }}>
+            {process.env.NEXT_PUBLIC_APP_ENV === 'dev' ? 'DEV' : 'PRODUCCIÓN'}
+          </span>
+        </div>
 
         {/* Mensaje promocional */}
         <section className="bg-gray-800 rounded-2xl p-6 mb-6">
@@ -249,6 +284,64 @@ export default function TvAdminPage() {
             </div>
           )}
 
+
+          {/* Videos */}
+          {videoScreens.length > 0 && (
+            <div className="space-y-3 mb-4">
+              {videoScreens.map(screen => (
+                <div key={screen.id} className="flex items-center gap-3 bg-gray-700 rounded-xl p-3">
+                  <span className="text-2xl">🎬</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-medium truncate">{(screen as any).video_url}</p>
+                    <p className="text-gray-400 text-xs">Video</p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <input
+                      type="number" min="5" max="300"
+                      placeholder={String(rotationInterval)}
+                      value={screen.duration_seconds ?? ''}
+                      onChange={e => updateDuration(screen, e.target.value ? Number(e.target.value) : null)}
+                      className="w-14 bg-gray-600 text-white text-xs rounded-lg px-2 py-1.5 text-center outline-none"
+                      title="Duración en segundos (vacío = global)"
+                    />
+                    <span className="text-gray-500 text-xs">seg</span>
+                    <button
+                      onClick={() => toggleScreen(screen)}
+                      className={`px-3 py-1.5 text-xs rounded-lg font-medium ${screen.is_enabled ? 'bg-green-700 text-white' : 'bg-gray-600 text-gray-400'}`}>
+                      {screen.is_enabled ? '✓ Activa' : 'Inactiva'}
+                    </button>
+                    <button
+                      onClick={() => deleteScreen(screen)}
+                      className="px-2 py-1.5 bg-gray-600 text-red-400 text-xs rounded-lg hover:bg-gray-500">
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Agregar video por URL */}
+          <div className="bg-gray-700 rounded-xl p-4 mb-4">
+            <p className="text-white font-medium mb-2">🎬 Agregar video por URL</p>
+            <p className="text-gray-400 text-xs mb-3">MP4, WebM, HLS — cualquier URL pública directa al archivo de video</p>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={videoUrl}
+                onChange={e => setVideoUrl(e.target.value)}
+                placeholder="https://ejemplo.com/video.mp4"
+                className="flex-1 bg-gray-600 text-white rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-yellow-500"
+              />
+              <button
+                onClick={addVideoScreen}
+                disabled={addingVideo || !videoUrl.trim()}
+                className="px-4 py-2 bg-yellow-500 text-gray-900 font-bold rounded-lg text-sm disabled:opacity-40">
+                {addingVideo ? '...' : 'Agregar'}
+              </button>
+            </div>
+            {videoError && <p className="text-red-400 text-xs mt-2">{videoError}</p>}
+          </div>
 
           {/* Pantalla de juego */}
           {gameScreen && (
