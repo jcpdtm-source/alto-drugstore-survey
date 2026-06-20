@@ -25,6 +25,7 @@ interface Slide {
 export default function TvPage() {
   const [tvData, setTvData] = useState<TvData | null>(null)
   const rotationRef = useRef<{ enabled: boolean; slides: Slide[]; defaultInterval: number }>({ enabled: false, slides: [], defaultInterval: 10 })
+  const [rotationReady, setRotationReady] = useState(false)
   const [resultsBySurvey, setResultsBySurvey] = useState<Record<string, SurveyResult[]>>({})
   const [slideIndex, setSlideIndex] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -117,10 +118,13 @@ export default function TvPage() {
       slides: buildSlides(tvData),
       defaultInterval: tvData.config.rotation_interval_seconds,
     }
+    // Arrancar el timer la primera vez que llega tvData
+    if (!rotationReady) setRotationReady(true)
   }, [tvData])
 
-  // Rotación — solo depende de slideIndex para que el poll de tvData no cancele el timer
+  // Rotación — depende de slideIndex y rotationReady (no de tvData, para que el poll no cancele el timer)
   useEffect(() => {
+    if (!rotationReady) return
     const { enabled, slides, defaultInterval } = rotationRef.current
     if (!enabled || slides.length <= 1) return
     const current = slides[slideIndex] || slides[0]
@@ -129,7 +133,7 @@ export default function TvPage() {
       setSlideIndex(prev => (prev + 1) % rotationRef.current.slides.length)
     }, duration)
     return () => clearTimeout(t)
-  }, [slideIndex])
+  }, [slideIndex, rotationReady])
 
   useEffect(() => {
     setShowFsButton(true)
