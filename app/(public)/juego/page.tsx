@@ -39,62 +39,69 @@ function useCountdown(expiresAt: string | undefined) {
   return timeLeft
 }
 
+function GameLayout({ children, bg = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)' }: { children: React.ReactNode; bg?: string }) {
+  return (
+    <div style={{
+      minHeight: '100vh', background: bg,
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      padding: '24px', fontFamily: 'Arial, sans-serif',
+    }}>
+      <img src="/logo.png" alt="Alto Drugstore" style={{ height: 56, marginTop: 24, marginBottom: 32, objectFit: 'contain' }} />
+      <div style={{ textAlign: 'center', maxWidth: 400, width: '100%', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
 function WonScreen({ result, onRetry }: { result: PlayGameResult; onRetry: () => void }) {
   const expiry = result.expires_at ? formatExpiry(result.expires_at) : ''
   const countdown = useCountdown(result.expires_at)
   const expired = countdown === '00:00:00'
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', padding: '24px', fontFamily: 'Arial, sans-serif',
-    }}>
-      <div style={{ textAlign: 'center', maxWidth: 400, width: '100%' }}>
-        <div style={{ fontSize: 72, marginBottom: 16 }}>🏆</div>
-        <div style={{
-          background: 'linear-gradient(135deg, #f6d365, #fda085)',
-          borderRadius: 24, padding: '32px 24px', marginBottom: 24,
-          boxShadow: '0 0 40px rgba(246,211,101,0.4)',
-        }}>
-          <p style={{ color: '#1a1a2e', fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 12px' }}>
-            ¡GANASTE UN PREMIO!
-          </p>
-          <p style={{ color: '#1a1a2e', fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.3 }}>
-            {result.prize_message}
-          </p>
-        </div>
-
-        <div style={{
-          background: 'rgba(255,255,255,0.08)', borderRadius: 16,
-          padding: '20px 24px', marginBottom: 24, border: '1px solid rgba(255,255,255,0.15)',
-        }}>
-          <p style={{ color: '#aaa', fontSize: 13, margin: '0 0 12px' }}>Mostrá esta pantalla en caja para canjear</p>
-          {expired ? (
-            <p style={{ color: '#ef4444', fontSize: 15, fontWeight: 700, margin: 0 }}>Premio vencido</p>
-          ) : (
-            <>
-              <p style={{ color: '#9CA3AF', fontSize: 12, margin: '0 0 6px' }}>Válido hasta las {expiry} hs</p>
-              <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 10, padding: '10px 16px', display: 'inline-block' }}>
-                <span style={{ color: '#f6d365', fontSize: 32, fontWeight: 900, fontFamily: 'monospace', letterSpacing: 4 }}>
-                  {countdown}
-                </span>
-              </div>
-            </>
-          )}
-        </div>
-
-        <button onClick={onRetry} style={{
-          background: 'rgba(255,255,255,0.1)', color: 'white',
-          border: '1px solid rgba(255,255,255,0.3)', borderRadius: 12,
-          padding: '12px 24px', fontSize: 15, cursor: 'pointer', width: '100%',
-        }}>
-          Volver a participar
-        </button>
-        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 36, marginTop: 24, opacity: 0.5, objectFit: 'contain' }} />
+    <GameLayout>
+      <div style={{ fontSize: 72, marginBottom: 16 }}>🏆</div>
+      <div style={{
+        background: 'linear-gradient(135deg, #f6d365, #fda085)',
+        borderRadius: 24, padding: '32px 24px', marginBottom: 24,
+        boxShadow: '0 0 40px rgba(246,211,101,0.4)',
+      }}>
+        <p style={{ color: '#1a1a2e', fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 12px' }}>
+          ¡GANASTE UN PREMIO!
+        </p>
+        <p style={{ color: '#1a1a2e', fontSize: 22, fontWeight: 900, margin: 0, lineHeight: 1.3 }}>
+          {result.prize_message}
+        </p>
       </div>
-    </div>
+
+      <div style={{
+        background: 'rgba(255,255,255,0.08)', borderRadius: 16,
+        padding: '20px 24px', marginBottom: 24, border: '1px solid rgba(255,255,255,0.15)',
+      }}>
+        <p style={{ color: '#aaa', fontSize: 13, margin: '0 0 12px' }}>Mostrá esta pantalla en caja para canjear</p>
+        {expired ? (
+          <p style={{ color: '#ef4444', fontSize: 15, fontWeight: 700, margin: 0 }}>Premio vencido</p>
+        ) : (
+          <>
+            <p style={{ color: '#9CA3AF', fontSize: 12, margin: '0 0 6px' }}>Válido hasta las {expiry} hs</p>
+            <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 10, padding: '10px 16px', display: 'inline-block' }}>
+              <span style={{ color: '#f6d365', fontSize: 32, fontWeight: 900, fontFamily: 'monospace', letterSpacing: 4 }}>
+                {countdown}
+              </span>
+            </div>
+          </>
+        )}
+      </div>
+
+      <button onClick={onRetry} style={{
+        background: 'rgba(255,255,255,0.1)', color: 'white',
+        border: '1px solid rgba(255,255,255,0.3)', borderRadius: 12,
+        padding: '12px 24px', fontSize: 15, cursor: 'pointer', width: '100%',
+      }}>
+        Volver a participar
+      </button>
+    </GameLayout>
   )
 }
 
@@ -148,126 +155,103 @@ export default function JuegoPage() {
 
   useEffect(() => { play() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const baseStyle: React.CSSProperties = {
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-    justifyContent: 'center', padding: '24px', fontFamily: 'Arial, sans-serif',
-  }
-
   if (state === 'won' && result) {
     return <WonScreen result={result} onRetry={() => { setConsecutiveLosses(0); play() }} />
   }
 
   if (state === 'lost' && result) {
     return (
-      <div style={baseStyle}>
-        <div style={{ textAlign: 'center', maxWidth: 400, width: '100%' }}>
-          <div style={{ fontSize: 64, marginBottom: 16 }}>⚽</div>
-          <div style={{
-            background: 'rgba(255,255,255,0.08)', borderRadius: 24,
-            padding: '32px 24px', marginBottom: 24, border: '1px solid rgba(255,255,255,0.15)',
-          }}>
-            <p style={{ color: 'white', fontSize: 20, fontWeight: 700, margin: '0 0 12px', lineHeight: 1.4 }}>
-              {result.consolation_message || '¡Gracias por participar!'}
-            </p>
-            <p style={{ color: '#888', fontSize: 14, margin: 0 }}>
-              Seguí intentando, el próximo premio puede ser tuyo
-            </p>
-          </div>
-          <button onClick={play} style={{
-            background: 'linear-gradient(135deg, #f6d365, #fda085)',
-            color: '#1a1a2e', border: 'none', borderRadius: 12,
-            padding: '14px 24px', fontSize: 16, fontWeight: 700, cursor: 'pointer', width: '100%',
-          }}>
-            Intentar de nuevo
-          </button>
-        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 36, marginTop: 24, opacity: 0.5, objectFit: 'contain' }} />
+      <GameLayout>
+        <div style={{ fontSize: 64, marginBottom: 16 }}>⚽</div>
+        <div style={{
+          background: 'rgba(255,255,255,0.08)', borderRadius: 24,
+          padding: '32px 24px', marginBottom: 24, border: '1px solid rgba(255,255,255,0.15)',
+        }}>
+          <p style={{ color: 'white', fontSize: 20, fontWeight: 700, margin: '0 0 12px', lineHeight: 1.4 }}>
+            {result.consolation_message || '¡Gracias por participar!'}
+          </p>
+          <p style={{ color: '#888', fontSize: 14, margin: 0 }}>
+            Seguí intentando, el próximo premio puede ser tuyo
+          </p>
         </div>
-      </div>
+        <button onClick={play} style={{
+          background: 'linear-gradient(135deg, #f6d365, #fda085)',
+          color: '#1a1a2e', border: 'none', borderRadius: 12,
+          padding: '14px 24px', fontSize: 16, fontWeight: 700, cursor: 'pointer', width: '100%',
+        }}>
+          Intentar de nuevo
+        </button>
+      </GameLayout>
     )
   }
 
-  // Ya participó demasiadas veces seguidas sin ganar
   if (state === 'enough') {
     return (
-      <div style={baseStyle}>
-        <div style={{ textAlign: 'center', maxWidth: 400, width: '100%' }}>
-          <div style={{ fontSize: 56, marginBottom: 16 }}>😄</div>
-          <div style={{
-            background: 'rgba(255,255,255,0.08)', borderRadius: 24,
-            padding: '32px 24px', marginBottom: 24, border: '1px solid rgba(255,255,255,0.15)',
-          }}>
-            <p style={{ color: 'white', fontSize: 20, fontWeight: 700, margin: '0 0 12px' }}>
-              ¡Ya participaste mucho!
-            </p>
-            <p style={{ color: '#9CA3AF', fontSize: 15, margin: 0, lineHeight: 1.5 }}>
-              Volvé en un rato para tener otra chance de ganar. Los premios se siguen repartiendo.
-            </p>
-          </div>
-          <button onClick={() => { setConsecutiveLosses(0); play() }} style={{
-            background: 'rgba(255,255,255,0.1)', color: 'white',
-            border: '1px solid rgba(255,255,255,0.3)', borderRadius: 12,
-            padding: '12px 24px', fontSize: 15, cursor: 'pointer', width: '100%',
-          }}>
-            Igual quiero intentar de nuevo
-          </button>
-        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 36, marginTop: 24, opacity: 0.5, objectFit: 'contain' }} />
+      <GameLayout>
+        <div style={{ fontSize: 56, marginBottom: 16 }}>😄</div>
+        <div style={{
+          background: 'rgba(255,255,255,0.08)', borderRadius: 24,
+          padding: '32px 24px', marginBottom: 24, border: '1px solid rgba(255,255,255,0.15)',
+        }}>
+          <p style={{ color: 'white', fontSize: 20, fontWeight: 700, margin: '0 0 12px' }}>
+            ¡Ya participaste mucho!
+          </p>
+          <p style={{ color: '#9CA3AF', fontSize: 15, margin: 0, lineHeight: 1.5 }}>
+            Volvé en un rato para tener otra chance de ganar. Los premios se siguen repartiendo.
+          </p>
         </div>
-      </div>
+        <button onClick={() => { setConsecutiveLosses(0); play() }} style={{
+          background: 'rgba(255,255,255,0.1)', color: 'white',
+          border: '1px solid rgba(255,255,255,0.3)', borderRadius: 12,
+          padding: '12px 24px', fontSize: 15, cursor: 'pointer', width: '100%',
+        }}>
+          Igual quiero intentar de nuevo
+        </button>
+      </GameLayout>
     )
   }
 
-  // Ya ganó recientemente (en cooldown)
   if (state === 'cooldown') {
     return (
-      <div style={baseStyle}>
-        <div style={{ textAlign: 'center', maxWidth: 400, width: '100%' }}>
-          <div style={{ fontSize: 56, marginBottom: 16 }}>🌟</div>
-          <div style={{
-            background: 'rgba(255,255,255,0.08)', borderRadius: 24,
-            padding: '32px 24px', marginBottom: 24, border: '1px solid rgba(255,255,255,0.15)',
-          }}>
-            <p style={{ color: 'white', fontSize: 20, fontWeight: 700, margin: '0 0 12px' }}>
-              ¡Ya ganaste un premio!
-            </p>
-            <p style={{ color: '#9CA3AF', fontSize: 15, margin: 0, lineHeight: 1.5 }}>
-              Podés seguir participando pero los premios se reparten para que todos tengan su chance. Volvé en unos días.
-            </p>
-          </div>
-        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 36, marginTop: 24, opacity: 0.5, objectFit: 'contain' }} />
+      <GameLayout>
+        <div style={{ fontSize: 56, marginBottom: 16 }}>🌟</div>
+        <div style={{
+          background: 'rgba(255,255,255,0.08)', borderRadius: 24,
+          padding: '32px 24px', marginBottom: 24, border: '1px solid rgba(255,255,255,0.15)',
+        }}>
+          <p style={{ color: 'white', fontSize: 20, fontWeight: 700, margin: '0 0 12px' }}>
+            ¡Ya ganaste un premio!
+          </p>
+          <p style={{ color: '#9CA3AF', fontSize: 15, margin: 0, lineHeight: 1.5 }}>
+            Podés seguir participando pero los premios se reparten para que todos tengan su chance. Volvé en unos días.
+          </p>
         </div>
-      </div>
+      </GameLayout>
     )
   }
 
   if (state === 'inactive') {
     return (
-      <div style={{ minHeight: '100vh', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'Arial, sans-serif' }}>
-        <div style={{ textAlign: 'center', color: 'white' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>⏸️</div>
-          <p style={{ fontSize: 18, fontWeight: 700 }}>El juego está pausado</p>
-          <p style={{ color: '#888', fontSize: 14 }}>Volvé en un momento</p>
-        </div>
-      </div>
+      <GameLayout bg="#111">
+        <div style={{ fontSize: 48, marginBottom: 16 }}>⏸️</div>
+        <p style={{ color: 'white', fontSize: 18, fontWeight: 700, margin: '0 0 8px' }}>El juego está pausado</p>
+        <p style={{ color: '#888', fontSize: 14, margin: 0 }}>Volvé en un momento</p>
+      </GameLayout>
     )
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial, sans-serif' }}>
+    <GameLayout bg="#111">
       {state === 'error' ? (
-        <div style={{ textAlign: 'center', color: 'white' }}>
-          <p style={{ fontSize: 18 }}>Algo salió mal</p>
-          <button onClick={play} style={{ marginTop: 16, padding: '10px 24px', borderRadius: 8, border: 'none', background: '#fda085', color: '#111', fontWeight: 700, cursor: 'pointer' }}>
+        <>
+          <p style={{ color: 'white', fontSize: 18, marginBottom: 16 }}>Algo salió mal</p>
+          <button onClick={play} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#fda085', color: '#111', fontWeight: 700, cursor: 'pointer' }}>
             Reintentar
           </button>
-        </div>
+        </>
       ) : (
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ color: 'white', fontSize: 18, marginBottom: 32 }}>Participando...</p>
-          <img src="/logo.png" alt="Alto Drugstore" style={{ height: 36, opacity: 0.5, objectFit: 'contain' }} />
-        </div>
+        <p style={{ color: 'white', fontSize: 18 }}>Participando...</p>
       )}
-    </div>
+    </GameLayout>
   )
 }
