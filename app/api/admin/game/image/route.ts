@@ -10,14 +10,14 @@ export async function POST(req: NextRequest) {
   const file = formData.get('file') as File
   if (!file) return NextResponse.json({ error: 'Archivo requerido' }, { status: 400 })
 
-  const allowed = ['image/jpeg', 'image/jpg', 'image/png']
+  const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
   if (!allowed.includes(file.type)) return NextResponse.json({ error: 'Solo JPG o PNG' }, { status: 400 })
   if (file.size > 5 * 1024 * 1024) return NextResponse.json({ error: 'Máximo 5MB' }, { status: 400 })
 
   const db = supabaseAdmin()
   const bytes = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
-  const ext = file.type === 'image/png' ? 'png' : 'jpg'
+  const ext = file.type === 'image/png' ? 'png' : file.type === 'image/gif' ? 'gif' : 'jpg'
   const fileName = `game-screen-${Date.now()}.${ext}`
 
   const { error: uploadError } = await db.storage

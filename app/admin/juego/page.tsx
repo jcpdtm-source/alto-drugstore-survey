@@ -264,7 +264,7 @@ export default function JuegoAdminPage() {
             {/* Imagen debajo del QR en TV */}
             <div>
               <label style={{ color: '#D1D5DB', fontSize: 13, fontWeight: 600 }}>Imagen debajo del QR (TV)</label>
-              <p style={{ color: '#9CA3AF', fontSize: 12, margin: '2px 0 8px' }}>Ocupa el tercio inferior de la pantalla. JPG o PNG, máx 5MB.</p>
+              <p style={{ color: '#9CA3AF', fontSize: 12, margin: '2px 0 8px' }}>Ocupa el tercio inferior de la pantalla. JPG, PNG o GIF, máx 5MB.</p>
               {config.game_screen_image_url && (
                 <div style={{ marginBottom: 10 }}>
                   <img src={config.game_screen_image_url} alt="Preview" style={{ width: '100%', maxHeight: 120, objectFit: 'cover', borderRadius: 8 }} />
@@ -278,7 +278,7 @@ export default function JuegoAdminPage() {
                   </button>
                 </div>
               )}
-              <input ref={gameImgRef} type="file" accept="image/jpeg,image/jpg,image/png" style={{ display: 'none' }}
+              <input ref={gameImgRef} type="file" accept="image/jpeg,image/jpg,image/png,image/gif" style={{ display: 'none' }}
                 onChange={async e => {
                   const file = e.target.files?.[0]
                   if (!file) return
