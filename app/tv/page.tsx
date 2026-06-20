@@ -174,7 +174,7 @@ export default function TvPage() {
   if (!currentSlide) return <div style={{ width: '100vw', height: '100vh', backgroundColor: '#111' }}>{fsButton}</div>
 
   if (currentSlide.type === 'promo_image' && currentSlide.imageUrl) {
-    return <><TvPromoScreen imageUrl={currentSlide.imageUrl} />{fsButton}</>
+    return <><TvPromoScreen imageUrl={currentSlide.imageUrl} orientation={orientation} />{fsButton}</>
   }
 
   if (currentSlide.type === 'game') {
