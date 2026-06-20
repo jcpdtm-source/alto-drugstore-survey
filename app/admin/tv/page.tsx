@@ -243,6 +243,8 @@ export default function TvAdminPage() {
                       ✕
                     </button>
                   </div>
+                </div>
+              ))}
             </div>
           )}
 
