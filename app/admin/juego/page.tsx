@@ -278,7 +278,7 @@ export default function JuegoAdminPage() {
                   </button>
                 </div>
               )}
-              <input ref={gameImgRef} type="file" accept="image/jpeg,image/jpg,image/png,image/gif" style={{ display: 'none' }}
+              <input ref={gameImgRef} type="file" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" style={{ display: 'none' }}
                 onChange={async e => {
                   const file = e.target.files?.[0]
                   if (!file) return
