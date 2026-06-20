@@ -126,7 +126,7 @@ function VerticalLayout({ survey, results, promoMessage, surveyUrl, scanVisible 
         overflow: 'hidden',
       }}>
         <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 2rem 1rem', textAlign: 'center' }}>
-          <img src="/logo.png" alt="Alto Drugstore" style={{ height: 120, marginBottom: 10, marginTop: 24, objectFit: 'contain' }} />
+          <img src="/logo.png" alt="Alto Drugstore" style={{ height: 180, marginBottom: 10, marginTop: 24, objectFit: 'contain' }} />
           {survey && (
             <h1 style={{ fontSize: 36, fontWeight: 900, lineHeight: 1.15, color: '#ffffff', margin: 0 }}>
               {survey.question}
