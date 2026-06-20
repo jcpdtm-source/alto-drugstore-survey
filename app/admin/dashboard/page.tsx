@@ -85,6 +85,11 @@ export default async function DashboardPage() {
           </a>
         </div>
       </div>
+      <div className="max-w-4xl mx-auto px-8 pb-8">
+        <p className="text-center text-gray-600 text-xs">
+          Alto Drugstore Survey · v1.0.0 · {new Date().getFullYear()}
+        </p>
+      </div>
     </div>
   )
 }

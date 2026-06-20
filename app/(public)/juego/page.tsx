@@ -263,7 +263,10 @@ export default function JuegoPage() {
           </button>
         </div>
       ) : (
-        <p style={{ color: 'white', fontSize: 18 }}>Participando...</p>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: 'white', fontSize: 18, marginBottom: 32 }}>Participando...</p>
+          <img src="/logo.png" alt="Alto Drugstore" style={{ height: 36, opacity: 0.5, objectFit: 'contain' }} />
+        </div>
       )}
     </div>
   )
