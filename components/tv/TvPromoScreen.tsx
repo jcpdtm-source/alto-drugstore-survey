@@ -6,23 +6,24 @@ interface Props {
 }
 
 export default function TvPromoScreen({ imageUrl, orientation = 'horizontal' }: Props) {
-  const isVertical = orientation === 'vertical'
-
-  const imgStyle: React.CSSProperties = isVertical ? {
-    width: '100vh',
-    height: '100vw',
-    objectFit: 'contain',
-    transform: 'rotate(-90deg)',
-    transformOrigin: 'center center',
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: '-50vw',
-    marginLeft: '-50vh',
-  } : {
-    width: '100%',
-    height: '100%',
-    objectFit: 'contain',
+  if (orientation === 'vertical') {
+    return (
+      <div style={{ width: '100vw', height: '100vh', backgroundColor: '#000', overflow: 'hidden', position: 'fixed', top: 0, left: 0 }}>
+        <div style={{
+          position: 'absolute',
+          top: '50%', left: '50%',
+          width: 'calc(100vh / 1.6)',
+          height: 'calc(100vw / 1.6)',
+          transform: 'translate(-50%, -50%) rotate(-90deg) scale(1.6)',
+          transformOrigin: 'center center',
+          backgroundColor: '#000',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          overflow: 'hidden',
+        }}>
+          <img src={imageUrl} alt="Promoción" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -30,9 +31,9 @@ export default function TvPromoScreen({ imageUrl, orientation = 'horizontal' }: 
       width: '100vw', height: '100vh',
       backgroundColor: '#000',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      overflow: 'hidden', position: 'relative',
+      overflow: 'hidden',
     }}>
-      <img src={imageUrl} alt="Promoción" style={imgStyle} />
+      <img src={imageUrl} alt="Promoción" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
     </div>
   )
 }
