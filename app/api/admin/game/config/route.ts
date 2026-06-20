@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getSession } from '@/lib/auth'
 
+function unwrap(data: unknown) {
+  return Array.isArray(data) ? data[0] ?? null : data
+}
+
 export async function GET() {
   const db = supabaseAdmin()
   const { data, error } = await db.rpc('get_game_config')
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  return NextResponse.json(unwrap(data))
 }
 
 export async function PATCH(req: NextRequest) {
@@ -31,5 +35,5 @@ export async function PATCH(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   const { data } = await db.rpc('get_game_config')
-  return NextResponse.json(data)
+  return NextResponse.json(unwrap(data))
 }
