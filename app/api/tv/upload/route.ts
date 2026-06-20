@@ -13,9 +13,9 @@ export async function POST(req: NextRequest) {
   if (!file) return NextResponse.json({ error: 'Archivo requerido' }, { status: 400 })
 
   // Validar tipo
-  const allowed = ['image/jpeg', 'image/jpg', 'image/png']
+  const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
   if (!allowed.includes(file.type)) {
-    return NextResponse.json({ error: 'Solo se permiten imágenes JPG o PNG' }, { status: 400 })
+    return NextResponse.json({ error: 'Solo se permiten imágenes JPG, PNG o WebP' }, { status: 400 })
   }
 
   // Validar tamaño (máx 5MB)
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const db = supabaseAdmin()
   const bytes = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
-  const ext = file.type === 'image/png' ? 'png' : 'jpg'
+  const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg'
   const fileName = `promo-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
   const { error: uploadError } = await db.storage

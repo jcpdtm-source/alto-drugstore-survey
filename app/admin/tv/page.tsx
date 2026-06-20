@@ -286,7 +286,7 @@ export default function TvAdminPage() {
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/jpeg,image/jpg,image/png"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
               className="hidden"
               onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
             />
@@ -296,7 +296,7 @@ export default function TvAdminPage() {
               <>
                 <p className="text-3xl mb-2">🖼️</p>
                 <p className="text-white font-medium">Subir imagen publicitaria</p>
-                <p className="text-gray-400 text-sm mt-1">JPG o PNG · Máximo 5MB</p>
+                <p className="text-gray-400 text-sm mt-1">JPG, PNG o WebP · Máximo 5MB</p>
                 <p className="text-gray-500 text-xs mt-1">Hacé click o arrastrá la imagen aquí</p>
               </>
             )}
