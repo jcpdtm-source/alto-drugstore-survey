@@ -61,6 +61,7 @@ export interface TvScreen {
   image_url: string | null
   image_name: string | null
   survey_id: string | null
+  duration_seconds: number | null
 }
 
 export interface AdminSession {

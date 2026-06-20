@@ -19,6 +19,7 @@ interface Slide {
   type: 'survey' | 'promo_image' | 'game'
   survey?: Survey
   imageUrl?: string
+  durationSeconds?: number | null
 }
 
 export default function TvPage() {
@@ -88,15 +89,16 @@ export default function TvPage() {
 
   const buildSlides = (data: TvData): Slide[] => {
     const slides: Slide[] = []
-    data.activeSurveys.forEach(s => slides.push({ type: 'survey', survey: s }))
+    const surveyScreen = data.screens.find(s => s.screen_type === 'survey')
+    data.activeSurveys.forEach(s => slides.push({ type: 'survey', survey: s, durationSeconds: surveyScreen?.duration_seconds }))
     data.screens
       .filter(s => s.is_enabled)
       .sort((a, b) => a.display_order - b.display_order)
       .forEach(s => {
         if (s.screen_type === 'promo_image' && s.image_url) {
-          slides.push({ type: 'promo_image', imageUrl: s.image_url })
+          slides.push({ type: 'promo_image', imageUrl: s.image_url, durationSeconds: s.duration_seconds })
         } else if (s.screen_type === 'game' && data.gameConfig?.is_active) {
-          slides.push({ type: 'game' })
+          slides.push({ type: 'game', durationSeconds: s.duration_seconds })
         }
       })
     // Si el juego está activo y no hay slide de juego configurada, agregarla al final
@@ -106,7 +108,7 @@ export default function TvPage() {
     return slides
   }
 
-  // Rotación
+  // Rotación — usa duration_seconds individual del slide o el global como fallback
   useEffect(() => {
     if (!tvData) return
     const slides = buildSlides(tvData)
@@ -114,11 +116,13 @@ export default function TvPage() {
       setSlideIndex(0)
       return
     }
-    const interval = setInterval(() => {
+    const currentSlideForTimer = slides[slideIndex] || slides[0]
+    const duration = (currentSlideForTimer?.durationSeconds ?? tvData.config.rotation_interval_seconds) * 1000
+    const t = setTimeout(() => {
       setSlideIndex(prev => (prev + 1) % slides.length)
-    }, tvData.config.rotation_interval_seconds * 1000)
-    return () => clearInterval(interval)
-  }, [tvData])
+    }, duration)
+    return () => clearTimeout(t)
+  }, [tvData, slideIndex])
 
   useEffect(() => {
     setShowFsButton(true)
