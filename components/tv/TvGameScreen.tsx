@@ -102,25 +102,8 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
         zIndex: 1, display: 'flex', flexDirection: 'column',
         alignItems: 'center', paddingTop: 36,
       }}>
-        {/* Nombre del negocio */}
-        <div style={{ textAlign: 'center', lineHeight: 1 }}>
-          <div style={{
-            fontSize: 38, fontStyle: 'italic', fontWeight: 900,
-            fontFamily: 'Georgia, serif',
-            background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>
-            Alto
-          </div>
-          <div style={{
-            fontSize: 28, fontWeight: 900, letterSpacing: 6,
-            fontFamily: 'Arial Black, Arial, sans-serif',
-            background: 'linear-gradient(135deg, #ff6b6b, #fda085)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          }}>
-            DRUGSTORE
-          </div>
-        </div>
+        {/* Logo del negocio */}
+        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 60, objectFit: 'contain' }} />
 
         {/* Badge */}
         <div style={{

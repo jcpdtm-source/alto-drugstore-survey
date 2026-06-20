@@ -126,9 +126,7 @@ function VerticalLayout({ survey, results, promoMessage, surveyUrl, scanVisible 
         overflow: 'hidden',
       }}>
         <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 2rem 1rem', textAlign: 'center' }}>
-          <div style={{ fontSize: 20, color: 'rgba(255,255,255,0.85)', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: 10, fontWeight: 700 }}>
-            Alto Drugstore
-          </div>
+          <img src="/logo.png" alt="Alto Drugstore" style={{ height: 48, marginBottom: 10, objectFit: 'contain' }} />
           {survey && (
             <h1 style={{ fontSize: 36, fontWeight: 900, lineHeight: 1.15, color: '#ffffff', margin: 0 }}>
               {survey.question}
@@ -155,7 +153,7 @@ function HorizontalLayout({ survey, results, promoMessage, surveyUrl, scanVisibl
     <div style={{ width: '100vw', height: '100vh', background: BG, color: 'white', display: 'flex', flexDirection: 'column', fontFamily: 'Arial, Helvetica, sans-serif', overflow: 'hidden' }}>
 
       <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 48px', borderBottom: `1px solid ${BORDER}`, background: BG_DARK }}>
-        <div style={{ fontSize: 18, color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase', letterSpacing: '0.3em', fontWeight: 700, flexShrink: 0 }}>Alto Drugstore</div>
+        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 40, objectFit: 'contain', flexShrink: 0 }} />
         {survey && (
           <h1 style={{ fontSize: 28, fontWeight: 900, color: '#ffffff', margin: 0, flex: 1, textAlign: 'center', padding: '0 2rem' }}>
             {survey.question}
