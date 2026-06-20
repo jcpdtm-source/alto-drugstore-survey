@@ -157,7 +157,16 @@ export default function TvAdminPage() {
     <div className="min-h-screen bg-gray-900 p-8">
       <div className="max-w-2xl mx-auto">
         <Link href="/admin/dashboard" className="text-gray-400 text-sm hover:text-white">← Dashboard</Link>
-        <h1 className="text-2xl font-bold text-white mt-2 mb-8">Configuración de Pantalla TV</h1>
+        <div className="flex items-center gap-3 mt-2 mb-8">
+          <h1 className="text-2xl font-bold text-white">Configuración de Pantalla TV</h1>
+          <span style={{
+            background: process.env.NEXT_PUBLIC_APP_ENV === 'dev' ? '#f59e0b' : '#10b981',
+            color: '#000', fontSize: 11, fontWeight: 800, padding: '2px 10px',
+            borderRadius: 20, letterSpacing: '0.08em', textTransform: 'uppercase',
+          }}>
+            {process.env.NEXT_PUBLIC_APP_ENV === 'dev' ? 'DEV' : 'PRODUCCIÓN'}
+          </span>
+        </div>
 
         {/* Mensaje promocional */}
         <section className="bg-gray-800 rounded-2xl p-6 mb-6">

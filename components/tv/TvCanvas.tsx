@@ -6,10 +6,15 @@ const DESIGN_W = 1920
 const DESIGN_H = 1080
 
 /**
- * Canvas virtual 1920×1080 para TV.
- * Horizontal: canvas 1920×1080, scale proporcional al viewport.
- * Vertical: canvas 1080×1920 (portrait), rotado -90deg → llena 1920×1080.
- * El scale es identical en ambos modos: min(vw/1920, vh/1080).
+ * Canvas virtual para TV (enfoque ChatGPT).
+ *
+ * Horizontal: canvas 1920×1080, escala para llenar el viewport.
+ * Vertical:   canvas 1080×1920 (portrait), rotate(-90deg) → aparece como 1920×1080 en browser.
+ *             En el TV físico girado +90°, el contenido portrait queda derecho.
+ *
+ * Los componentes hijos siempre llenan 100%×100% del canvas — sin rotación interna.
+ * Scale = min(vw/1920, vh/1080) es idéntico en ambos modos porque visualmente el canvas
+ * ocupa 1920×1080 en los dos casos.
  */
 export default function TvCanvas({
   orientation = 'horizontal',
@@ -28,9 +33,11 @@ export default function TvCanvas({
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  // Siempre usamos canvas 1920×1080. El TV Tizen no rota el browser via software —
-  // la orientación portrait la maneja el sistema operativo del TV o la posición física.
-  // El canvas solo provee escala uniforme para que el contenido se vea igual en cualquier TV.
+  const isVertical = orientation === 'vertical'
+  // Portrait canvas: 1080 ancho × 1920 alto; landscape canvas: 1920 × 1080
+  const cW = isVertical ? DESIGN_H : DESIGN_W
+  const cH = isVertical ? DESIGN_W : DESIGN_H
+
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0,
@@ -41,11 +48,13 @@ export default function TvCanvas({
       <div style={{
         position: 'absolute',
         top: '50%', left: '50%',
-        width: DESIGN_W,
-        height: DESIGN_H,
+        width: cW,
+        height: cH,
         overflow: 'hidden',
         transformOrigin: 'center center',
-        transform: `translate(-50%, -50%) scale(${scale})`,
+        transform: isVertical
+          ? `translate(-50%, -50%) rotate(-90deg) scale(${scale})`
+          : `translate(-50%, -50%) scale(${scale})`,
       }}>
         {children}
       </div>

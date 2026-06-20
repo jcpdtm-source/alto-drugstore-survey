@@ -2,22 +2,45 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getSession } from '@/lib/auth'
 
+const CONFIG_ENV = process.env.NEXT_PUBLIC_APP_ENV || 'production'
+
 async function getConfig(db: ReturnType<typeof supabaseAdmin>) {
-  // get_tv_config() lee orientation directamente via SQL, bypaseando schema cache
+  // Intentar con config_env filter; fallback si la columna no existe aún
+  const { data, error } = await db
+    .from('tv_config')
+    .select('*')
+    .eq('config_env', CONFIG_ENV)
+    .single()
+
+  if (!error && data) return data
+
   const { data: rpcData, error: rpcError } = await db.rpc('get_tv_config')
   if (!rpcError && rpcData) return rpcData
 
-  // Fallback
-  const { data } = await db.from('tv_config').select('*').single()
-  return { ...data, orientation: (data as Record<string, unknown>)?.orientation || 'horizontal' }
+  const { data: fallback } = await db.from('tv_config').select('*').single()
+  return { ...fallback, orientation: (fallback as Record<string, unknown>)?.orientation || 'horizontal' }
+}
+
+async function getScreens(db: ReturnType<typeof supabaseAdmin>) {
+  const { data, error } = await db
+    .from('tv_screens')
+    .select('*')
+    .eq('config_env', CONFIG_ENV)
+    .order('display_order')
+
+  if (!error && data) return data
+
+  // Fallback sin columna config_env
+  const { data: fallback } = await db.from('tv_screens').select('*').order('display_order')
+  return fallback || []
 }
 
 export async function GET() {
   const db = supabaseAdmin()
 
-  const [config, screensRes, activeSurveysRes, gameConfigRes] = await Promise.all([
+  const [config, screens, activeSurveysRes, gameConfigRes] = await Promise.all([
     getConfig(db),
-    db.from('tv_screens').select('*').order('display_order'),
+    getScreens(db),
     db.from('surveys')
       .select('id, question, title')
       .eq('is_active', true)
@@ -31,14 +54,16 @@ export async function GET() {
     screen_rotation_enabled: false,
     rotation_interval_seconds: 10,
     orientation: 'horizontal',
+    config_env: CONFIG_ENV,
   }
 
   return NextResponse.json({
     config: safeConfig,
-    screens: screensRes.data || [],
+    screens: screens || [],
     activeSurveys: activeSurveysRes.data || [],
     activeSurvey: activeSurveysRes.data?.[0] || null,
     gameConfig: gameConfigRes || null,
+    configEnv: CONFIG_ENV,
   })
 }
 
@@ -49,11 +74,18 @@ export async function PATCH(req: NextRequest) {
   const body = await req.json()
   const db = supabaseAdmin()
 
-  const { data: existing } = await db.from('tv_config').select('id').single()
+  // Buscar la fila correcta para este env; fallback a cualquier fila si la columna no existe
+  let existing: { id: string } | null = null
+  const { data: envRow } = await db.from('tv_config').select('id').eq('config_env', CONFIG_ENV).single()
+  if (envRow) {
+    existing = envRow
+  } else {
+    const { data: anyRow } = await db.from('tv_config').select('id').single()
+    existing = anyRow
+  }
+
   if (!existing) return NextResponse.json({ error: 'Config no encontrada' }, { status: 404 })
 
-  // Actualizar todos los campos en un solo update
-  // orientation ya está en el schema cache porque corrimos NOTIFY pgrst, 'reload schema'
   const updates: Record<string, unknown> = {}
   if (typeof body.promo_message === 'string') updates.promo_message = body.promo_message
   if (typeof body.screen_rotation_enabled === 'boolean') updates.screen_rotation_enabled = body.screen_rotation_enabled
@@ -64,5 +96,5 @@ export async function PATCH(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   const config = await getConfig(db)
-  return NextResponse.json({ ok: true, config })
+  return NextResponse.json({ ok: true, config, configEnv: CONFIG_ENV })
 }
