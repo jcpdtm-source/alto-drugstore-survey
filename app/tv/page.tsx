@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { TvConfig, TvScreen, SurveyResult, Survey } from '@/lib/types'
 import TvSurveyScreen from '@/components/tv/TvSurveyScreen'
@@ -24,6 +24,7 @@ interface Slide {
 
 export default function TvPage() {
   const [tvData, setTvData] = useState<TvData | null>(null)
+  const rotationRef = useRef<{ enabled: boolean; slides: Slide[]; defaultInterval: number }>({ enabled: false, slides: [], defaultInterval: 10 })
   const [resultsBySurvey, setResultsBySurvey] = useState<Record<string, SurveyResult[]>>({})
   const [slideIndex, setSlideIndex] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -108,21 +109,27 @@ export default function TvPage() {
     return slides
   }
 
-  // Rotación — usa duration_seconds individual del slide o el global como fallback
+  // Actualizar ref cuando cambia tvData (sin reiniciar el timer)
   useEffect(() => {
     if (!tvData) return
-    const slides = buildSlides(tvData)
-    if (!tvData.config.screen_rotation_enabled || slides.length <= 1) {
-      setSlideIndex(0)
-      return
+    rotationRef.current = {
+      enabled: tvData.config.screen_rotation_enabled,
+      slides: buildSlides(tvData),
+      defaultInterval: tvData.config.rotation_interval_seconds,
     }
-    const currentSlideForTimer = slides[slideIndex] || slides[0]
-    const duration = (currentSlideForTimer?.durationSeconds ?? tvData.config.rotation_interval_seconds) * 1000
+  }, [tvData])
+
+  // Rotación — solo depende de slideIndex para que el poll de tvData no cancele el timer
+  useEffect(() => {
+    const { enabled, slides, defaultInterval } = rotationRef.current
+    if (!enabled || slides.length <= 1) return
+    const current = slides[slideIndex] || slides[0]
+    const duration = (current?.durationSeconds ?? defaultInterval) * 1000
     const t = setTimeout(() => {
-      setSlideIndex(prev => (prev + 1) % slides.length)
+      setSlideIndex(prev => (prev + 1) % rotationRef.current.slides.length)
     }, duration)
     return () => clearTimeout(t)
-  }, [tvData, slideIndex])
+  }, [slideIndex])
 
   useEffect(() => {
     setShowFsButton(true)
