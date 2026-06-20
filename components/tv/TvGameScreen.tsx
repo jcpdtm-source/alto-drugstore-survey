@@ -111,15 +111,17 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal',
       {/* Contenido superior: logo + badge + texto rotante */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0,
+        bottom: '52%',
         zIndex: 3, display: 'flex', flexDirection: 'column',
-        alignItems: 'center', paddingTop: 36,
+        alignItems: 'center', justifyContent: 'flex-start',
+        paddingTop: 24, overflow: 'hidden',
       }}>
         {/* Logo del negocio */}
-        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 234, objectFit: 'contain' }} />
+        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 234, objectFit: 'contain', flexShrink: 0 }} />
 
         {/* Badge */}
         <div style={{
-          marginTop: 20,
+          marginTop: 10, flexShrink: 0,
           background: 'linear-gradient(135deg, #f6d365, #fda085)',
           borderRadius: 50, padding: '10px 28px',
           fontSize: 20, fontWeight: 800, color: '#1a1a2e',
@@ -131,11 +133,12 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal',
 
         {/* Mensaje rotante */}
         <div style={{
-          marginTop: 32, padding: '0 48px',
+          marginTop: 12, padding: '0 48px',
           fontSize: 46, fontWeight: 900, color: textColor,
           fontFamily: 'Arial Black, Arial, sans-serif',
           lineHeight: 1.15, textAlign: 'center',
           textShadow: '0 2px 8px rgba(0,0,0,0.25)',
+          overflow: 'hidden',
         }}>
           {messages[msgIndex]}
         </div>
