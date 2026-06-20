@@ -103,10 +103,6 @@ export default function TvPage() {
           slides.push({ type: 'game', durationSeconds: s.duration_seconds })
         }
       })
-    // Si el juego está activo y no hay slide de juego configurada, agregarla al final
-    if (data.gameConfig?.is_active && !slides.some(s => s.type === 'game')) {
-      slides.push({ type: 'game' })
-    }
     return slides
   }
 
