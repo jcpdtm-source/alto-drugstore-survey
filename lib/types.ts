@@ -55,11 +55,12 @@ export interface TvConfig {
 
 export interface TvScreen {
   id: string
-  screen_type: 'survey' | 'promo_image' | 'game'
+  screen_type: 'survey' | 'promo_image' | 'game' | 'video'
   display_order: number
   is_enabled: boolean
   image_url: string | null
   image_name: string | null
+  video_url: string | null
   survey_id: string | null
   duration_seconds: number | null
 }

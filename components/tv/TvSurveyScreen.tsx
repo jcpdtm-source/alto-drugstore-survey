@@ -12,7 +12,7 @@ interface Props {
 }
 
 const BG = '#1EABF1'
-const BG_DARK = '#0e8fd4'   // panel lateral / header más oscuro
+const BG_DARK = '#0e8fd4'
 const BORDER = 'rgba(255,255,255,0.25)'
 
 const BAR_COLORS = [
@@ -43,10 +43,10 @@ export default function TvSurveyScreen({ survey, results, promoMessage, orientat
 
 function ResultsBars({ results, large }: { results: SurveyResult[]; large?: boolean }) {
   const maxCount = results.length > 0 ? Math.max(...results.map(r => r.response_count)) : 1
-  const labelSize = large ? 20 : 20
-  const pctSize = large ? 20 : 22
-  const barHeight = large ? 23 : 32
-  const gap = large ? 9 : 14
+  const labelSize = large ? 32 : 20
+  const pctSize = large ? 32 : 22
+  const barHeight = large ? 36 : 32
+  const gap = large ? 16 : 14
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap }}>
@@ -72,26 +72,7 @@ function ResultsBars({ results, large }: { results: SurveyResult[]; large?: bool
         )
       })}
       {results.length === 0 && (
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: large ? 28 : 18, textAlign: 'center', marginTop: 24 }}>¡Sé el primero en votar!</p>
-      )}
-    </div>
-  )
-}
-
-function QRBlock({ survey, surveyUrl, size, scanVisible }: { survey: Survey | null; surveyUrl: string; size: number; scanVisible: boolean }) {
-  return (
-    <div style={{ background: 'rgba(0,0,0,0.18)', padding: 16, borderRadius: 20, border: `1px solid ${BORDER}`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {survey ? (
-        <>
-          <div style={{ background: 'white', borderRadius: 10, padding: 8 }}>
-            <QRCodeSVG value={surveyUrl} size={size} level="H" includeMargin={false} />
-          </div>
-          <div style={{ marginTop: 12, fontSize: 13, fontWeight: 800, color: '#ffffff', letterSpacing: '0.15em', textTransform: 'uppercase', opacity: scanVisible ? 1 : 0.35, transition: 'opacity 0.8s ease' }}>
-            ESCANEÁ PARA VOTAR
-          </div>
-        </>
-      ) : (
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, textAlign: 'center' }}>Sin encuesta activa</p>
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: large ? 44 : 18, textAlign: 'center', marginTop: 24 }}>¡Sé el primero en votar!</p>
       )}
     </div>
   )
@@ -100,57 +81,66 @@ function QRBlock({ survey, surveyUrl, size, scanVisible }: { survey: Survey | nu
 function PromoBanner({ promoMessage, large }: { promoMessage: string; large?: boolean }) {
   if (!promoMessage) return null
   return (
-    <div style={{ flexShrink: 0, background: 'rgba(0,0,0,0.25)', padding: large ? '14px 24px' : '8px 20px', textAlign: 'center', marginBottom: large ? 24 : 0 }}>
-      <span style={{ fontSize: large ? 18 : 30, fontWeight: 700, color: '#FFE600', letterSpacing: '0.05em' }}>
+    <div style={{ flexShrink: 0, background: 'rgba(0,0,0,0.25)', padding: large ? '22px 38px' : '8px 20px', textAlign: 'center', marginBottom: large ? 32 : 0 }}>
+      <span style={{ fontSize: large ? 28 : 30, fontWeight: 700, color: '#FFE600', letterSpacing: '0.05em' }}>
         {promoMessage}
       </span>
     </div>
   )
 }
 
+// Diseñado para canvas vertical 1080×1920 (portrait).
+// TvCanvas aplica rotate(-90deg) y scale — no se necesita rotación aquí.
 function VerticalLayout({ survey, results, promoMessage, surveyUrl, scanVisible }: any) {
   return (
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', background: BG, position: 'fixed', top: 0, left: 0 }}>
-      <div style={{
-        position: 'absolute',
-        top: '50%', left: '50%',
-        width: 'calc(100vh / 1.6)',
-        height: 'calc(100vw / 1.6)',
-        transform: 'translate(-50%, -50%) rotate(-90deg) scale(1.6)',
-        transformOrigin: 'center center',
-        background: BG,
-        color: 'white',
-        display: 'flex',
-        flexDirection: 'column',
-        fontFamily: 'Arial, Helvetica, sans-serif',
-        overflow: 'hidden',
-      }}>
-        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 2rem 1rem', textAlign: 'center' }}>
-          <img src="/logo.png" alt="Alto Drugstore" style={{ height: 234, marginBottom: 10, marginTop: 24, objectFit: 'contain' }} />
-          {survey && (
-            <h1 style={{ fontSize: 36, fontWeight: 900, lineHeight: 1.15, color: '#ffffff', margin: 0 }}>
-              {survey.question}
-            </h1>
+    <div style={{
+      width: '100%', height: '100%',
+      background: BG,
+      color: 'white',
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: 'Arial, Helvetica, sans-serif',
+      overflow: 'hidden',
+    }}>
+      <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 3rem 1.5rem', textAlign: 'center' }}>
+        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 360, marginTop: 32, marginBottom: 16, objectFit: 'contain' }} />
+        {survey && (
+          <h1 style={{ fontSize: 58, fontWeight: 900, lineHeight: 1.15, color: '#ffffff', margin: 0 }}>
+            {survey.question}
+          </h1>
+        )}
+      </div>
+
+      <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem 0' }}>
+        <div style={{ background: 'rgba(0,0,0,0.18)', padding: 24, borderRadius: 30, border: `1px solid ${BORDER}`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {survey ? (
+            <>
+              <div style={{ background: 'white', borderRadius: 16, padding: 12 }}>
+                <QRCodeSVG value={surveyUrl} size={380} level="H" includeMargin={false} />
+              </div>
+              <div style={{ marginTop: 18, fontSize: 20, fontWeight: 800, color: '#ffffff', letterSpacing: '0.15em', textTransform: 'uppercase', opacity: scanVisible ? 1 : 0.35, transition: 'opacity 0.8s ease' }}>
+                ESCANEÁ PARA VOTAR
+              </div>
+            </>
+          ) : (
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 20, textAlign: 'center' }}>Sin encuesta activa</p>
           )}
         </div>
-
-        <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0' }}>
-          <QRBlock survey={survey} surveyUrl={surveyUrl} size={240} scanVisible={scanVisible} />
-        </div>
-
-        <div style={{ flex: 1, padding: '0.5rem 2rem 0.8rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden' }}>
-          <ResultsBars results={results} large />
-        </div>
-
-        <PromoBanner promoMessage={promoMessage} large />
       </div>
+
+      <div style={{ flex: 1, padding: '0.8rem 3rem 1rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden' }}>
+        <ResultsBars results={results} large />
+      </div>
+
+      <PromoBanner promoMessage={promoMessage} large />
     </div>
   )
 }
 
+// Diseñado para canvas horizontal 1920×1080.
 function HorizontalLayout({ survey, results, promoMessage, surveyUrl, scanVisible }: any) {
   return (
-    <div style={{ width: '100vw', height: '100vh', background: BG, color: 'white', display: 'flex', flexDirection: 'column', fontFamily: 'Arial, Helvetica, sans-serif', overflow: 'hidden' }}>
+    <div style={{ width: '100%', height: '100%', background: BG, color: 'white', display: 'flex', flexDirection: 'column', fontFamily: 'Arial, Helvetica, sans-serif', overflow: 'hidden' }}>
 
       <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 48px', borderBottom: `1px solid ${BORDER}`, background: BG_DARK }}>
         <img src="/logo.png" alt="Alto Drugstore" style={{ height: 40, objectFit: 'contain', flexShrink: 0 }} />
@@ -170,7 +160,20 @@ function HorizontalLayout({ survey, results, promoMessage, surveyUrl, scanVisibl
           <ResultsBars results={results} />
         </div>
         <div style={{ flex: 1, background: BG_DARK, borderLeft: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 28 }}>
-          <QRBlock survey={survey} surveyUrl={surveyUrl} size={200} scanVisible={scanVisible} />
+          <div style={{ background: 'rgba(0,0,0,0.18)', padding: 16, borderRadius: 20, border: `1px solid ${BORDER}`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {survey ? (
+              <>
+                <div style={{ background: 'white', borderRadius: 10, padding: 8 }}>
+                  <QRCodeSVG value={surveyUrl} size={200} level="H" includeMargin={false} />
+                </div>
+                <div style={{ marginTop: 12, fontSize: 13, fontWeight: 800, color: '#ffffff', letterSpacing: '0.15em', textTransform: 'uppercase', opacity: scanVisible ? 1 : 0.35, transition: 'opacity 0.8s ease' }}>
+                  ESCANEÁ PARA VOTAR
+                </div>
+              </>
+            ) : (
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, textAlign: 'center' }}>Sin encuesta activa</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

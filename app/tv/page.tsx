@@ -6,6 +6,8 @@ import { TvConfig, TvScreen, SurveyResult, Survey } from '@/lib/types'
 import TvSurveyScreen from '@/components/tv/TvSurveyScreen'
 import TvPromoScreen from '@/components/tv/TvPromoScreen'
 import TvGameScreen from '@/components/tv/TvGameScreen'
+import TvVideoScreen from '@/components/tv/TvVideoScreen'
+import TvCanvas from '@/components/tv/TvCanvas'
 import { GameConfig } from '@/lib/types'
 
 interface TvData {
@@ -16,9 +18,10 @@ interface TvData {
 }
 
 interface Slide {
-  type: 'survey' | 'promo_image' | 'game'
+  type: 'survey' | 'promo_image' | 'game' | 'video'
   survey?: Survey
   imageUrl?: string
+  videoUrl?: string
   durationSeconds?: number | null
 }
 
@@ -35,7 +38,6 @@ export default function TvPage() {
     const res = await fetch('/api/tv')
     if (res.ok) {
       const data = await res.json()
-      // Compatibilidad: si viene activeSurvey solo (viejo), convertir a array
       if (!data.activeSurveys && data.activeSurvey) {
         data.activeSurveys = [data.activeSurvey]
       } else if (!data.activeSurveys) {
@@ -64,7 +66,6 @@ export default function TvPage() {
     tvData?.activeSurveys?.forEach(s => fetchResults(s.id))
   }, [JSON.stringify(tvData?.activeSurveys?.map(s => s.id)), fetchResults])
 
-  // Realtime: respuestas
   useEffect(() => {
     if (!tvData?.activeSurveys?.length) return
     const channels = tvData.activeSurveys.map(survey =>
@@ -79,7 +80,6 @@ export default function TvPage() {
     return () => { channels.forEach(c => supabase.removeChannel(c)) }
   }, [JSON.stringify(tvData?.activeSurveys?.map(s => s.id)), fetchResults])
 
-  // Realtime: config
   useEffect(() => {
     const channel = supabase.channel('tv-config')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tv_config' }, fetchTvData)
@@ -101,12 +101,13 @@ export default function TvPage() {
           slides.push({ type: 'promo_image', imageUrl: s.image_url, durationSeconds: s.duration_seconds })
         } else if (s.screen_type === 'game' && data.gameConfig?.is_active) {
           slides.push({ type: 'game', durationSeconds: s.duration_seconds })
+        } else if (s.screen_type === 'video' && s.video_url) {
+          slides.push({ type: 'video', videoUrl: s.video_url, durationSeconds: s.duration_seconds })
         }
       })
     return slides
   }
 
-  // Actualizar ref cuando cambia tvData (sin reiniciar el timer)
   useEffect(() => {
     if (!tvData) return
     rotationRef.current = {
@@ -114,11 +115,9 @@ export default function TvPage() {
       slides: buildSlides(tvData),
       defaultInterval: tvData.config.rotation_interval_seconds,
     }
-    // Arrancar el timer la primera vez que llega tvData
     if (!rotationReady) setRotationReady(true)
   }, [tvData])
 
-  // Rotación — depende de slideIndex y rotationReady (no de tvData, para que el poll no cancele el timer)
   useEffect(() => {
     if (!rotationReady) return
     const { enabled, slides, defaultInterval } = rotationRef.current
@@ -171,22 +170,49 @@ export default function TvPage() {
     </button>
   )
 
-  if (!currentSlide) return <div style={{ width: '100vw', height: '100vh', backgroundColor: '#111' }}>{fsButton}</div>
+  if (!currentSlide) return (
+    <>
+      <TvCanvas orientation={orientation}>
+        <div style={{ width: '100%', height: '100%', backgroundColor: '#111' }} />
+      </TvCanvas>
+      {fsButton}
+    </>
+  )
 
   if (currentSlide.type === 'promo_image' && currentSlide.imageUrl) {
-    return <><TvPromoScreen imageUrl={currentSlide.imageUrl} orientation={orientation} />{fsButton}</>
+    return (
+      <>
+        <TvCanvas orientation={orientation}>
+          <TvPromoScreen imageUrl={currentSlide.imageUrl} orientation={orientation} />
+        </TvCanvas>
+        {fsButton}
+      </>
+    )
+  }
+
+  if (currentSlide.type === 'video' && currentSlide.videoUrl) {
+    return (
+      <>
+        <TvCanvas orientation={orientation}>
+          <TvVideoScreen videoUrl={currentSlide.videoUrl} />
+        </TvCanvas>
+        {fsButton}
+      </>
+    )
   }
 
   if (currentSlide.type === 'game') {
     return (
       <>
-        <TvGameScreen
-          gameMessages={tvData.gameConfig?.game_messages ?? []}
-          orientation={orientation}
-          counter={tvData.gameConfig?.global_counter}
-          imageUrl={tvData.gameConfig?.game_screen_image_url}
-          textColor={tvData.gameConfig?.game_text_color ?? '#ffffff'}
-        />
+        <TvCanvas orientation={orientation}>
+          <TvGameScreen
+            gameMessages={tvData.gameConfig?.game_messages ?? []}
+            orientation={orientation}
+            counter={tvData.gameConfig?.global_counter}
+            imageUrl={tvData.gameConfig?.game_screen_image_url}
+            textColor={tvData.gameConfig?.game_text_color ?? '#ffffff'}
+          />
+        </TvCanvas>
         {fsButton}
       </>
     )
@@ -194,12 +220,14 @@ export default function TvPage() {
 
   return (
     <>
-      <TvSurveyScreen
-        survey={currentSlide.survey || null}
-        results={currentSlide.survey ? (resultsBySurvey[currentSlide.survey.id] || []) : []}
-        promoMessage={tvData.config.promo_message}
-        orientation={orientation}
-      />
+      <TvCanvas orientation={orientation}>
+        <TvSurveyScreen
+          survey={currentSlide.survey || null}
+          results={currentSlide.survey ? (resultsBySurvey[currentSlide.survey.id] || []) : []}
+          promoMessage={tvData.config.promo_message}
+          orientation={orientation}
+        />
+      </TvCanvas>
       {fsButton}
     </>
   )

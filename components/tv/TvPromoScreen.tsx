@@ -5,14 +5,11 @@ interface Props {
   orientation?: 'horizontal' | 'vertical'
 }
 
+// El canvas (TvCanvas) provee las dimensiones y la orientación correcta.
+// Este componente simplemente llena el canvas con la imagen.
 export default function TvPromoScreen({ imageUrl }: Props) {
   return (
-    <div style={{
-      width: '100vw', height: '100vh',
-      backgroundColor: '#000',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      overflow: 'hidden'
-    }}>
+    <div style={{ width: '100%', height: '100%', backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <img
         src={imageUrl}
         alt="Promoción"
