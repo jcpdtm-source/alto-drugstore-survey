@@ -111,10 +111,10 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal',
       {/* Contenido superior: logo + badge + texto rotante */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0,
-        bottom: '52%',
+        bottom: '65%',
         zIndex: 3, display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'flex-start',
-        paddingTop: 24, overflow: 'hidden',
+        paddingTop: 12, overflow: 'hidden',
       }}>
         {/* Logo del negocio */}
         <img src="/logo.png" alt="Alto Drugstore" style={{ height: 234, objectFit: 'contain', flexShrink: 0 }} />
