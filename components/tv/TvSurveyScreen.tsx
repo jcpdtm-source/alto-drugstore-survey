@@ -15,15 +15,13 @@ const BG = '#1EABF1'
 const BG_DARK = '#0e8fd4'
 const BORDER = 'rgba(255,255,255,0.25)'
 
-const BAR_COLORS = [
-  '#ffffff',
-  '#fde047',
-  '#f97316',
-  '#a3e635',
-  '#f472b6',
-  '#c4b5fd',
-  '#67e8f9',
-]
+const BAR_COLORS = ['#ffffff', '#fde047', '#f97316', '#a3e635', '#f472b6', '#c4b5fd', '#67e8f9']
+
+// Espacio de diseño vertical dentro del canvas 1920×1080.
+// El inner div (V_W × V_H) rotado -90° y escalado V_SCALE llena exactamente el canvas.
+const V_SCALE = 1.6
+const V_W = 1080 / V_SCALE  // 675
+const V_H = 1920 / V_SCALE  // 1200
 
 export default function TvSurveyScreen({ survey, results, promoMessage, orientation = 'horizontal' }: Props) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
@@ -41,55 +39,26 @@ export default function TvSurveyScreen({ survey, results, promoMessage, orientat
   return <HorizontalLayout survey={survey} results={results} promoMessage={promoMessage} surveyUrl={surveyUrl} scanVisible={scanVisible} />
 }
 
-function ResultsBarsVertical({ results }: { results: SurveyResult[] }) {
+function ResultsBars({ results, large }: { results: SurveyResult[]; large?: boolean }) {
   const maxCount = results.length > 0 ? Math.max(...results.map(r => r.response_count)) : 1
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {results.map((r, i) => {
-        const barWidth = maxCount > 0 ? (r.response_count / maxCount) * 100 : 0
-        return (
-          <div key={r.option_id}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 8 }}>
-              <span style={{ fontSize: 24, fontWeight: 700, color: '#ffffff' }}>{r.option_text}</span>
-              <span style={{ fontSize: 26, fontWeight: 900, color: '#ffffff', marginLeft: 16 }}>{r.percentage}%</span>
-            </div>
-            <div style={{ width: '100%', height: 28, background: 'rgba(0,0,0,0.2)', borderRadius: 14, overflow: 'hidden' }}>
-              <div style={{
-                height: '100%',
-                width: `${barWidth}%`,
-                borderRadius: 14,
-                background: BAR_COLORS[i % BAR_COLORS.length],
-                transition: 'width 1.5s ease',
-                minWidth: r.response_count > 0 ? 8 : 0,
-              }} />
-            </div>
-          </div>
-        )
-      })}
-      {results.length === 0 && (
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 30, textAlign: 'center', marginTop: 32 }}>¡Sé el primero en votar!</p>
-      )}
-    </div>
-  )
-}
+  const labelSize = 20
+  const pctSize = large ? 20 : 22
+  const barHeight = large ? 23 : 32
+  const gap = large ? 9 : 14
 
-function ResultsBarsHorizontal({ results }: { results: SurveyResult[] }) {
-  const maxCount = results.length > 0 ? Math.max(...results.map(r => r.response_count)) : 1
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap }}>
       {results.map((r, i) => {
         const barWidth = maxCount > 0 ? (r.response_count / maxCount) * 100 : 0
         return (
           <div key={r.option_id}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 6 }}>
-              <span style={{ fontSize: 20, fontWeight: 700, color: '#ffffff' }}>{r.option_text}</span>
-              <span style={{ fontSize: 22, fontWeight: 900, color: '#ffffff', marginLeft: 12 }}>{r.percentage}%</span>
+              <span style={{ fontSize: labelSize, fontWeight: 700, color: '#ffffff' }}>{r.option_text}</span>
+              <span style={{ fontSize: pctSize, fontWeight: 900, color: '#ffffff', marginLeft: 12 }}>{r.percentage}%</span>
             </div>
-            <div style={{ width: '100%', height: 32, background: 'rgba(0,0,0,0.2)', borderRadius: 16, overflow: 'hidden' }}>
+            <div style={{ width: '100%', height: barHeight, background: 'rgba(0,0,0,0.2)', borderRadius: barHeight / 2, overflow: 'hidden' }}>
               <div style={{
-                height: '100%',
-                width: `${barWidth}%`,
-                borderRadius: 16,
+                height: '100%', width: `${barWidth}%`, borderRadius: barHeight / 2,
                 background: BAR_COLORS[i % BAR_COLORS.length],
                 transition: 'width 1.5s ease',
                 minWidth: r.response_count > 0 ? 8 : 0,
@@ -99,87 +68,78 @@ function ResultsBarsHorizontal({ results }: { results: SurveyResult[] }) {
         )
       })}
       {results.length === 0 && (
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 18, textAlign: 'center', marginTop: 24 }}>¡Sé el primero en votar!</p>
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: large ? 28 : 18, textAlign: 'center', marginTop: 24 }}>¡Sé el primero en votar!</p>
       )}
     </div>
   )
 }
 
-/**
- * Modo vertical: canvas portrait 1080×1920.
- * TvCanvas aplica rotate(-90deg) al canvas completo — aquí solo diseñamos en portrait.
- */
+function PromoBanner({ promoMessage, large }: { promoMessage: string; large?: boolean }) {
+  if (!promoMessage) return null
+  return (
+    <div style={{ flexShrink: 0, background: 'rgba(0,0,0,0.25)', padding: large ? '14px 24px' : '8px 20px', textAlign: 'center', marginBottom: large ? 24 : 0 }}>
+      <span style={{ fontSize: large ? 18 : 30, fontWeight: 700, color: '#FFE600', letterSpacing: '0.05em' }}>
+        {promoMessage}
+      </span>
+    </div>
+  )
+}
+
+// Modo vertical: inner div V_W×V_H (675×1200) rotado -90° y escalado 1.6
+// → ocupa exactamente el canvas 1920×1080. Sin rotación en el canvas.
 function VerticalLayout({ survey, results, promoMessage, surveyUrl, scanVisible }: any) {
   return (
-    <div style={{
-      width: '100%', height: '100%',
-      background: BG, color: 'white',
-      display: 'flex', flexDirection: 'column',
-      fontFamily: 'Arial, Helvetica, sans-serif',
-      overflow: 'hidden',
-    }}>
-      {/* Cabecera: logo + pregunta */}
+    <div style={{ width: '100%', height: '100%', background: BG, position: 'relative', overflow: 'hidden' }}>
       <div style={{
-        flexShrink: 0,
+        position: 'absolute', top: '50%', left: '50%',
+        width: V_W, height: V_H,
+        transform: `translate(-50%, -50%) rotate(-90deg) scale(${V_SCALE})`,
+        transformOrigin: 'center center',
+        background: BG, color: 'white',
         display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        padding: '48px 48px 24px',
-        textAlign: 'center',
+        fontFamily: 'Arial, Helvetica, sans-serif',
+        overflow: 'hidden',
       }}>
-        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 200, objectFit: 'contain', marginBottom: 28 }} />
-        {survey && (
-          <h1 style={{ fontSize: 52, fontWeight: 900, lineHeight: 1.2, color: '#ffffff', margin: 0 }}>
-            {survey.question}
-          </h1>
-        )}
-      </div>
-
-      {/* QR code */}
-      <div style={{
-        flexShrink: 0,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '12px 0 20px',
-      }}>
-        <div style={{ background: 'rgba(0,0,0,0.18)', padding: 20, borderRadius: 24, border: `1px solid ${BORDER}`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {survey ? (
-            <>
-              <div style={{ background: 'white', borderRadius: 12, padding: 10 }}>
-                <QRCodeSVG value={surveyUrl} size={280} level="H" includeMargin={false} />
-              </div>
-              <div style={{ marginTop: 14, fontSize: 15, fontWeight: 800, color: '#ffffff', letterSpacing: '0.15em', textTransform: 'uppercase', opacity: scanVisible ? 1 : 0.35, transition: 'opacity 0.8s ease' }}>
-                ESCANEÁ PARA VOTAR
-              </div>
-            </>
-          ) : (
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, textAlign: 'center' }}>Sin encuesta activa</p>
+        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 2rem 1rem', textAlign: 'center' }}>
+          <img src="/logo.png" alt="Alto Drugstore" style={{ height: 234, marginBottom: 10, marginTop: 24, objectFit: 'contain' }} />
+          {survey && (
+            <h1 style={{ fontSize: 36, fontWeight: 900, lineHeight: 1.15, color: '#ffffff', margin: 0 }}>
+              {survey.question}
+            </h1>
           )}
         </div>
-      </div>
 
-      {/* Resultados */}
-      <div style={{ flex: 1, padding: '8px 52px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden' }}>
-        <ResultsBarsVertical results={results} />
-      </div>
-
-      {/* Mensaje promo */}
-      {promoMessage && (
-        <div style={{ flexShrink: 0, background: 'rgba(0,0,0,0.25)', padding: '18px 28px', textAlign: 'center' }}>
-          <span style={{ fontSize: 22, fontWeight: 700, color: '#FFE600', letterSpacing: '0.05em' }}>
-            {promoMessage}
-          </span>
+        <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.6rem 0' }}>
+          <div style={{ background: 'rgba(0,0,0,0.18)', padding: 16, borderRadius: 20, border: `1px solid ${BORDER}`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {survey ? (
+              <>
+                <div style={{ background: 'white', borderRadius: 10, padding: 8 }}>
+                  <QRCodeSVG value={surveyUrl} size={240} level="H" includeMargin={false} />
+                </div>
+                <div style={{ marginTop: 12, fontSize: 13, fontWeight: 800, color: '#ffffff', letterSpacing: '0.15em', textTransform: 'uppercase', opacity: scanVisible ? 1 : 0.35, transition: 'opacity 0.8s ease' }}>
+                  ESCANEÁ PARA VOTAR
+                </div>
+              </>
+            ) : (
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, textAlign: 'center' }}>Sin encuesta activa</p>
+            )}
+          </div>
         </div>
-      )}
+
+        <div style={{ flex: 1, padding: '0.5rem 2rem 0.8rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden' }}>
+          <ResultsBars results={results} large />
+        </div>
+
+        <PromoBanner promoMessage={promoMessage} large />
+      </div>
     </div>
   )
 }
 
-/**
- * Modo horizontal: canvas landscape 1920×1080.
- */
+// Modo horizontal: diseñado para el canvas 1920×1080 completo.
 function HorizontalLayout({ survey, results, promoMessage, surveyUrl, scanVisible }: any) {
   return (
     <div style={{ width: '100%', height: '100%', background: BG, color: 'white', display: 'flex', flexDirection: 'column', fontFamily: 'Arial, Helvetica, sans-serif', overflow: 'hidden' }}>
-
       <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 48px', borderBottom: `1px solid ${BORDER}`, background: BG_DARK }}>
         <img src="/logo.png" alt="Alto Drugstore" style={{ height: 40, objectFit: 'contain', flexShrink: 0 }} />
         {survey && (
@@ -195,7 +155,7 @@ function HorizontalLayout({ survey, results, promoMessage, surveyUrl, scanVisibl
 
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         <div style={{ flex: 2, padding: '32px 52px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <ResultsBarsHorizontal results={results} />
+          <ResultsBars results={results} />
         </div>
         <div style={{ flex: 1, background: BG_DARK, borderLeft: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 28 }}>
           <div style={{ background: 'rgba(0,0,0,0.18)', padding: 16, borderRadius: 20, border: `1px solid ${BORDER}`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
