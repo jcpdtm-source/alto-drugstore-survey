@@ -23,7 +23,7 @@ export async function GET() {
       .eq('is_active', true)
       .order('created_at', { ascending: true })
       .limit(2),
-    db.rpc('get_game_config').then(r => r.data ?? null).then(d => d, () => null),
+    db.rpc('get_game_config').then(r => Array.isArray(r.data) ? r.data[0] ?? null : r.data ?? null).then(d => d, () => null),
   ])
 
   const safeConfig = config || {

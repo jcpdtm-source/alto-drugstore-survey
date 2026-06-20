@@ -2,6 +2,8 @@
 ALTER TABLE game_config ADD COLUMN IF NOT EXISTS game_messages text[] DEFAULT '{}';
 
 -- Actualizar RPC get_game_config para incluir game_messages
+DROP FUNCTION IF EXISTS get_game_config();
+
 CREATE OR REPLACE FUNCTION get_game_config()
 RETURNS TABLE(
   id uuid,
