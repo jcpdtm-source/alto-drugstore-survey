@@ -75,10 +75,10 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
         }} />
       </div>
 
-      {/* QR anclado al fondo — posición absoluta, nunca se mueve */}
+      {/* QR anclado al centro — posición absoluta, nunca se mueve */}
       <div style={{
-        position: 'absolute', bottom: 60, left: '50%',
-        transform: 'translateX(-50%)',
+        position: 'absolute', top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
         zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
       }}>
         <div style={{

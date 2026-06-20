@@ -101,7 +101,7 @@ function PromoBanner({ promoMessage, large }: { promoMessage: string; large?: bo
   if (!promoMessage) return null
   return (
     <div style={{ flexShrink: 0, background: 'rgba(0,0,0,0.25)', padding: large ? '14px 24px' : '8px 20px', textAlign: 'center' }}>
-      <span style={{ fontSize: large ? 12 : 20, fontWeight: 700, color: '#ffffff', letterSpacing: '0.05em' }}>
+      <span style={{ fontSize: large ? 18 : 30, fontWeight: 700, color: '#ffffff', letterSpacing: '0.05em' }}>
         {promoMessage}
       </span>
     </div>
