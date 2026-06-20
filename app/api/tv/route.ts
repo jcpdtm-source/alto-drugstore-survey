@@ -5,34 +5,36 @@ import { getSession } from '@/lib/auth'
 const CONFIG_ENV = process.env.NEXT_PUBLIC_APP_ENV || 'production'
 
 async function getConfig(db: ReturnType<typeof supabaseAdmin>) {
-  // Intentar con config_env filter; fallback si la columna no existe aún
-  const { data, error } = await db
+  // Intentar filtrar por config_env (si la columna ya existe)
+  const { data: envRows, error: envError } = await db
     .from('tv_config')
     .select('*')
     .eq('config_env', CONFIG_ENV)
-    .single()
+    .limit(1)
 
-  if (!error && data) return data
+  if (!envError && envRows && envRows.length > 0) return envRows[0]
 
+  // Fallback: columna config_env no existe aún → usar RPC o cualquier fila
   const { data: rpcData, error: rpcError } = await db.rpc('get_tv_config')
   if (!rpcError && rpcData) return rpcData
 
-  const { data: fallback } = await db.from('tv_config').select('*').single()
-  return { ...fallback, orientation: (fallback as Record<string, unknown>)?.orientation || 'horizontal' }
+  const { data: rows } = await db.from('tv_config').select('*').limit(1)
+  const row = rows?.[0]
+  return { ...row, orientation: (row as Record<string, unknown>)?.orientation || 'horizontal' }
 }
 
 async function getScreens(db: ReturnType<typeof supabaseAdmin>) {
-  const { data, error } = await db
+  const { data: envRows, error: envError } = await db
     .from('tv_screens')
     .select('*')
     .eq('config_env', CONFIG_ENV)
     .order('display_order')
 
-  if (!error && data) return data
+  if (!envError && envRows) return envRows
 
   // Fallback sin columna config_env
-  const { data: fallback } = await db.from('tv_screens').select('*').order('display_order')
-  return fallback || []
+  const { data: rows } = await db.from('tv_screens').select('*').order('display_order')
+  return rows || []
 }
 
 export async function GET() {
@@ -74,17 +76,26 @@ export async function PATCH(req: NextRequest) {
   const body = await req.json()
   const db = supabaseAdmin()
 
-  // Buscar la fila correcta para este env; fallback a cualquier fila si la columna no existe
-  let existing: { id: string } | null = null
-  const { data: envRow } = await db.from('tv_config').select('id').eq('config_env', CONFIG_ENV).single()
-  if (envRow) {
-    existing = envRow
+  // Buscar la fila correcta. Usar limit(1) en lugar de single() para evitar error
+  // cuando hay múltiples filas (ej. después de correr la migración de dev/prod).
+  let existingId: string | null = null
+
+  const { data: envRows, error: envError } = await db
+    .from('tv_config')
+    .select('id')
+    .eq('config_env', CONFIG_ENV)
+    .limit(1)
+
+  if (!envError && envRows && envRows.length > 0) {
+    existingId = envRows[0].id
   } else {
-    const { data: anyRow } = await db.from('tv_config').select('id').single()
-    existing = anyRow
+    // Fallback: columna config_env no existe o no hay fila para este env.
+    // Tomar cualquier fila disponible (comportamiento original).
+    const { data: anyRows } = await db.from('tv_config').select('id').limit(1)
+    existingId = anyRows?.[0]?.id ?? null
   }
 
-  if (!existing) return NextResponse.json({ error: 'Config no encontrada' }, { status: 404 })
+  if (!existingId) return NextResponse.json({ error: 'Config no encontrada' }, { status: 404 })
 
   const updates: Record<string, unknown> = {}
   if (typeof body.promo_message === 'string') updates.promo_message = body.promo_message
@@ -92,7 +103,7 @@ export async function PATCH(req: NextRequest) {
   if (typeof body.rotation_interval_seconds === 'number') updates.rotation_interval_seconds = body.rotation_interval_seconds
   if (body.orientation === 'horizontal' || body.orientation === 'vertical') updates.orientation = body.orientation
 
-  const { error } = await db.from('tv_config').update(updates).eq('id', existing.id)
+  const { error } = await db.from('tv_config').update(updates).eq('id', existingId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   const config = await getConfig(db)
