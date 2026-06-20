@@ -43,8 +43,8 @@ export default function TvSurveyScreen({ survey, results, promoMessage, orientat
 
 function ResultsBars({ results, large }: { results: SurveyResult[]; large?: boolean }) {
   const maxCount = results.length > 0 ? Math.max(...results.map(r => r.response_count)) : 1
-  const labelSize = large ? 17 : 17
-  const pctSize = large ? 17 : 18
+  const labelSize = large ? 20 : 20
+  const pctSize = large ? 20 : 22
   const barHeight = large ? 23 : 32
   const gap = large ? 9 : 14
 
@@ -101,7 +101,7 @@ function PromoBanner({ promoMessage, large }: { promoMessage: string; large?: bo
   if (!promoMessage) return null
   return (
     <div style={{ flexShrink: 0, background: 'rgba(0,0,0,0.25)', padding: large ? '14px 24px' : '8px 20px', textAlign: 'center', marginBottom: large ? 24 : 0 }}>
-      <span style={{ fontSize: large ? 18 : 30, fontWeight: 700, color: '#ffffff', letterSpacing: '0.05em' }}>
+      <span style={{ fontSize: large ? 18 : 30, fontWeight: 700, color: '#FFE600', letterSpacing: '0.05em' }}>
         {promoMessage}
       </span>
     </div>
