@@ -110,9 +110,9 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
           marginTop: 20,
           background: 'linear-gradient(135deg, #f6d365, #fda085)',
           borderRadius: 50, padding: '6px 20px',
-          fontSize: 13, fontWeight: 800, color: '#1a1a2e',
+          fontSize: 20, fontWeight: 800, color: '#1a1a2e',
           letterSpacing: 2, textTransform: 'uppercase',
-          fontFamily: 'Arial, sans-serif',
+          fontFamily: 'Arial, sans-serif', padding: '10px 28px',
         }}>
           🏆 Juego de Premios
         </div>
