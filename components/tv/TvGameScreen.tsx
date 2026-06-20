@@ -26,7 +26,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
   useEffect(() => {
     const t = setInterval(() => {
       setMsgIndex(i => (i + 1) % messages.length)
-    }, 3500)
+    }, 5250)
     return () => clearInterval(t)
   }, [messages.length])
 
