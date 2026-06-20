@@ -188,6 +188,8 @@ export default function TvPage() {
           gameMessages={tvData.gameConfig?.game_messages ?? []}
           orientation={orientation}
           counter={tvData.gameConfig?.global_counter}
+          imageUrl={tvData.gameConfig?.game_screen_image_url}
+          textColor={tvData.gameConfig?.game_text_color ?? '#ffffff'}
         />
         {fsButton}
       </>

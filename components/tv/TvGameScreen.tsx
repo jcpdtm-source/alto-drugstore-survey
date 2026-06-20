@@ -7,6 +7,8 @@ interface Props {
   gameMessages: string[]
   orientation?: 'horizontal' | 'vertical'
   counter?: number
+  imageUrl?: string | null
+  textColor?: string
 }
 
 const MESSAGES_DEFAULT = [
@@ -16,7 +18,7 @@ const MESSAGES_DEFAULT = [
   'Escaneá y participá ahora',
 ]
 
-export default function TvGameScreen({ gameMessages, orientation = 'horizontal' }: Props) {
+export default function TvGameScreen({ gameMessages, orientation = 'horizontal', imageUrl, textColor = '#ffffff' }: Props) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
   const gameUrl = `${appUrl}/juego`
 
@@ -75,6 +77,16 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
         }} />
       </div>
 
+      {/* Imagen debajo del QR (opcional) */}
+      {imageUrl && (
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          height: '33%', overflow: 'hidden', zIndex: 1,
+        }}>
+          <img src={imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+      )}
+
       {/* QR anclado al centro — posición absoluta, nunca se mueve */}
       <div style={{
         position: 'absolute', top: '50%', left: '50%',
@@ -88,7 +100,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
           <QRCodeSVG value={gameUrl} size={180} />
         </div>
         <p style={{
-          color: 'white', fontSize: 20, margin: 0,
+          color: textColor, fontSize: 20, margin: 0,
           fontFamily: 'Arial, sans-serif', fontWeight: 700,
           textAlign: 'center', textShadow: '0 1px 4px rgba(0,0,0,0.3)',
         }}>
@@ -96,10 +108,10 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
         </p>
       </div>
 
-      {/* Contenido superior: nombre + badge + texto rotante */}
+      {/* Contenido superior: logo + badge + texto rotante */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0,
-        zIndex: 1, display: 'flex', flexDirection: 'column',
+        zIndex: 3, display: 'flex', flexDirection: 'column',
         alignItems: 'center', paddingTop: 36,
       }}>
         {/* Logo del negocio */}
@@ -109,10 +121,10 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
         <div style={{
           marginTop: 20,
           background: 'linear-gradient(135deg, #f6d365, #fda085)',
-          borderRadius: 50, padding: '6px 20px',
+          borderRadius: 50, padding: '10px 28px',
           fontSize: 20, fontWeight: 800, color: '#1a1a2e',
           letterSpacing: 2, textTransform: 'uppercase',
-          fontFamily: 'Arial, sans-serif', padding: '10px 28px',
+          fontFamily: 'Arial, sans-serif',
         }}>
           🏆 Juego de Premios
         </div>
@@ -120,7 +132,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
         {/* Mensaje rotante */}
         <div style={{
           marginTop: 32, padding: '0 48px',
-          fontSize: 46, fontWeight: 900, color: 'white',
+          fontSize: 46, fontWeight: 900, color: textColor,
           fontFamily: 'Arial Black, Arial, sans-serif',
           lineHeight: 1.15, textAlign: 'center',
           textShadow: '0 2px 8px rgba(0,0,0,0.25)',

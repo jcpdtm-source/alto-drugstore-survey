@@ -79,6 +79,8 @@ export interface GameConfig {
   redemption_hours: number
   win_cooldown_days: number
   game_messages: string[]
+  game_screen_image_url: string | null
+  game_text_color: string
   updated_at: string
 }
 
