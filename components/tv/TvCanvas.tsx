@@ -28,10 +28,9 @@ export default function TvCanvas({
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  const isVertical = orientation === 'vertical'
-  const canvasW = isVertical ? DESIGN_H : DESIGN_W  // 1080 o 1920
-  const canvasH = isVertical ? DESIGN_W : DESIGN_H  // 1920 o 1080
-
+  // Siempre usamos canvas 1920×1080. El TV Tizen no rota el browser via software —
+  // la orientación portrait la maneja el sistema operativo del TV o la posición física.
+  // El canvas solo provee escala uniforme para que el contenido se vea igual en cualquier TV.
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0,
@@ -42,13 +41,11 @@ export default function TvCanvas({
       <div style={{
         position: 'absolute',
         top: '50%', left: '50%',
-        width: canvasW,
-        height: canvasH,
+        width: DESIGN_W,
+        height: DESIGN_H,
         overflow: 'hidden',
         transformOrigin: 'center center',
-        transform: isVertical
-          ? `translate(-50%, -50%) rotate(-90deg) scale(${scale})`
-          : `translate(-50%, -50%) scale(${scale})`,
+        transform: `translate(-50%, -50%) scale(${scale})`,
       }}>
         {children}
       </div>

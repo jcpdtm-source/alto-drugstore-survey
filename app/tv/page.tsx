@@ -194,7 +194,7 @@ export default function TvPage() {
     return (
       <>
         <TvCanvas orientation={orientation}>
-          <TvVideoScreen videoUrl={currentSlide.videoUrl} />
+          <TvVideoScreen videoUrl={currentSlide.videoUrl} orientation={orientation} />
         </TvCanvas>
         {fsButton}
       </>
