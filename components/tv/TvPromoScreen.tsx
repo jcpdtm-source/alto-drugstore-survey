@@ -8,10 +8,10 @@ interface Props {
 export default function TvPromoScreen({ imageUrl, orientation = 'horizontal' }: Props) {
   if (orientation === 'vertical') {
     // La pantalla Tizen es landscape (ej 1920×1080) pero el TV está físico en portrait.
-    // Rotamos la imagen -90deg y le damos width=100vh, height=100vw para que
-    // tras la rotación ocupe exactamente 100vw × 100vh sin necesitar scale.
+    // width=100vh y height=100vw: tras rotate(-90deg) la imagen queda 100vw×100vh visual.
+    // Sin overflow:hidden en el wrapper — ese corta el layout antes de rotar y rompe la imagen.
     return (
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: '#000', overflow: 'hidden' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: '#000' }}>
         <img
           src={imageUrl}
           alt="Promoción"
