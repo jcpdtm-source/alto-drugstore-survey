@@ -185,7 +185,7 @@ export default function TvPage() {
     return (
       <>
         <TvGameScreen
-          gameMessages={[]}
+          gameMessages={tvData.gameConfig?.game_messages ?? []}
           orientation={orientation}
           counter={tvData.gameConfig?.global_counter}
         />

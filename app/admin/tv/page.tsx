@@ -124,6 +124,7 @@ export default function TvAdminPage() {
   )
 
   const promoScreens = data.screens.filter(s => s.screen_type === 'promo_image')
+  const gameScreen = data.screens.find(s => s.screen_type === 'game')
   const surveyScreen = data.screens.find(s => s.screen_type === 'survey')
 
   return (
@@ -245,6 +246,33 @@ export default function TvAdminPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+
+          {/* Pantalla de juego */}
+          {gameScreen && (
+            <div className="flex items-center justify-between bg-gray-700 rounded-xl p-4 mb-3">
+              <div>
+                <p className="text-white font-medium">🎰 Pantalla Juego de Premios</p>
+                <p className="text-gray-400 text-xs mt-0.5">Muestra QR y mensajes del juego</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number" min="5" max="300"
+                  placeholder={String(rotationInterval)}
+                  value={gameScreen.duration_seconds ?? ''}
+                  onChange={e => updateDuration(gameScreen, e.target.value ? Number(e.target.value) : null)}
+                  className="w-16 bg-gray-600 text-white text-xs rounded-lg px-2 py-1.5 text-center outline-none"
+                  title="Duración en segundos (vacío = global)"
+                />
+                <span className="text-gray-500 text-xs">seg</span>
+                <button
+                  onClick={() => toggleScreen(gameScreen)}
+                  className={`px-3 py-1.5 text-sm rounded-lg font-medium ${gameScreen.is_enabled ? 'bg-green-700 text-white' : 'bg-gray-600 text-gray-400'}`}>
+                  {gameScreen.is_enabled ? '✓ Activa' : 'Inactiva'}
+                </button>
+              </div>
             </div>
           )}
 

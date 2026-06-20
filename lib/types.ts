@@ -78,6 +78,7 @@ export interface GameConfig {
   global_counter: number
   redemption_hours: number
   win_cooldown_days: number
+  game_messages: string[]
   updated_at: string
 }
 

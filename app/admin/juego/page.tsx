@@ -222,6 +222,23 @@ export default function JuegoAdminPage() {
               </div>
             </div>
 
+
+            {/* Mensajes TV */}
+            <div>
+              <label style={{ color: '#D1D5DB', fontSize: 13, fontWeight: 600 }}>Mensajes en pantalla de TV</label>
+              <p style={{ color: '#9CA3AF', fontSize: 12, margin: '2px 0 8px' }}>Aparecen rotando sobre el QR. Un mensaje por línea.</p>
+              <textarea
+                rows={5}
+                value={(config.game_messages ?? []).join('\n')}
+                onChange={e => setConfig({ ...config, game_messages: e.target.value.split('\n') })}
+                style={{ ...inputStyle, width: '100%', resize: 'vertical', fontFamily: 'Arial, sans-serif' }}
+                placeholder={'¿Ya participaste?\nEscaneá y participá ahora\nGratis · Rápido · Vale la pena'}
+              />
+              <button onClick={() => saveConfig({ game_messages: config.game_messages })} style={{ ...btnPrimary, marginTop: 8 }} disabled={saving}>
+                Guardar mensajes
+              </button>
+            </div>
+
             {/* Reiniciar contador */}
             <div>
               <label style={{ color: '#D1D5DB', fontSize: 13, fontWeight: 600 }}>Reiniciar contador</label>

@@ -42,7 +42,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
     left: '50%',
     marginTop: 'calc(-100vw / 3.2)',
     marginLeft: 'calc(-100vh / 3.2)',
-    backgroundColor: '#0a0a1a',
+    backgroundColor: '#1EABF1',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -51,7 +51,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
   } : {
     width: '100vw',
     height: '100vh',
-    backgroundColor: '#0a0a1a',
+    backgroundColor: '#1EABF1',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -65,12 +65,12 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
         <div style={{
           position: 'absolute', width: 600, height: 600,
-          background: 'radial-gradient(circle, rgba(246,211,101,0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%)',
           top: '-200px', left: '-100px',
         }} />
         <div style={{
           position: 'absolute', width: 500, height: 500,
-          background: 'radial-gradient(circle, rgba(253,160,133,0.06) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)',
           bottom: '-150px', right: '-100px',
         }} />
       </div>
@@ -88,9 +88,9 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
           <QRCodeSVG value={gameUrl} size={180} />
         </div>
         <p style={{
-          color: '#D1D5DB', fontSize: 20, margin: 0,
-          fontFamily: 'Arial, sans-serif', fontWeight: 600,
-          textAlign: 'center',
+          color: 'white', fontSize: 20, margin: 0,
+          fontFamily: 'Arial, sans-serif', fontWeight: 700,
+          textAlign: 'center', textShadow: '0 1px 4px rgba(0,0,0,0.3)',
         }}>
           Escaneá con tu celular · Gratis
         </p>
@@ -103,7 +103,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
         alignItems: 'center', paddingTop: 36,
       }}>
         {/* Logo del negocio */}
-        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 60, objectFit: 'contain' }} />
+        <img src="/logo.png" alt="Alto Drugstore" style={{ height: 234, objectFit: 'contain' }} />
 
         {/* Badge */}
         <div style={{
@@ -123,7 +123,7 @@ export default function TvGameScreen({ gameMessages, orientation = 'horizontal' 
           fontSize: 46, fontWeight: 900, color: 'white',
           fontFamily: 'Arial Black, Arial, sans-serif',
           lineHeight: 1.15, textAlign: 'center',
-          textShadow: '0 0 40px rgba(246,211,101,0.3)',
+          textShadow: '0 2px 8px rgba(0,0,0,0.25)',
         }}>
           {messages[msgIndex]}
         </div>

@@ -23,6 +23,7 @@ export async function PATCH(req: NextRequest) {
   if (typeof body.redemption_hours === 'number') updates.redemption_hours = body.redemption_hours
   if (typeof body.global_counter === 'number') updates.global_counter = body.global_counter
   if (typeof body.win_cooldown_days === 'number') updates.win_cooldown_days = body.win_cooldown_days
+  if (Array.isArray(body.game_messages)) updates.game_messages = body.game_messages
 
   updates.updated_at = new Date().toISOString()
 
