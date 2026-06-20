@@ -100,7 +100,7 @@ function QRBlock({ survey, surveyUrl, size, scanVisible }: { survey: Survey | nu
 function PromoBanner({ promoMessage, large }: { promoMessage: string; large?: boolean }) {
   if (!promoMessage) return null
   return (
-    <div style={{ flexShrink: 0, background: 'rgba(0,0,0,0.25)', padding: large ? '14px 24px' : '8px 20px', textAlign: 'center' }}>
+    <div style={{ flexShrink: 0, background: 'rgba(0,0,0,0.25)', padding: large ? '14px 24px' : '8px 20px', textAlign: 'center', marginBottom: large ? 24 : 0 }}>
       <span style={{ fontSize: large ? 18 : 30, fontWeight: 700, color: '#ffffff', letterSpacing: '0.05em' }}>
         {promoMessage}
       </span>
@@ -126,7 +126,7 @@ function VerticalLayout({ survey, results, promoMessage, surveyUrl, scanVisible 
         overflow: 'hidden',
       }}>
         <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 2rem 1rem', textAlign: 'center' }}>
-          <img src="/logo.png" alt="Alto Drugstore" style={{ height: 48, marginBottom: 10, objectFit: 'contain' }} />
+          <img src="/logo.png" alt="Alto Drugstore" style={{ height: 120, marginBottom: 10, marginTop: 24, objectFit: 'contain' }} />
           {survey && (
             <h1 style={{ fontSize: 36, fontWeight: 900, lineHeight: 1.15, color: '#ffffff', margin: 0 }}>
               {survey.question}
